@@ -1,0 +1,13 @@
+.gmaps_component {
+    height: 100%;
+    position: relative;
+
+    .btn_container {
+        position: absolute;
+        right: 1em;
+        bottom: 1em;
+        .btn{
+            margin-left: 1em;
+        }
+    }
+}

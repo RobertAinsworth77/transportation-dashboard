@@ -5,6 +5,7 @@ export interface response {
     busses_count: number,
     trips_count: number,
     routes_count: number,
+    sites_count: number,
 }
 export default class GetAllCountersRelatedToTripUseCase {
     _defaultRepository: DefaultRepository;

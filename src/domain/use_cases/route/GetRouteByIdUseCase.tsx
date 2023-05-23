@@ -11,7 +11,10 @@ export default class GetRouteByIdUseCase {
 
     public call = async (id: number) => new Promise<RouteEntity>(async (resolve, reject) => {
         try {
+            console.log('get route by id use case calll', id);
             const response = await this._routeRepository.getById(id);
+            console.log('get route by id use case', response);
+            if (response?.polylines != null) await this._routeRepository.savePolylinesOfRoute(id, response.polylines);
             return resolve(response);
         } catch (_) {
             return reject();

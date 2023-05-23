@@ -1,0 +1,45 @@
+.auth_layout_component {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &::before {
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        content: '';
+        background: url('../../../../../public/assets/bg/bg_auth.png');
+        background-size: 70vw;
+        background-color: var(--color-green);
+        clip-path: polygon(0 0, 76% 0, 36% 100%, 0% 100%);
+    }
+
+    .boy_img {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        height: 55%;
+    }
+
+    &>.card {
+        max-width: 450px;
+
+        &>.card-body>div {
+            margin: 1em;
+            &>.img_logo {
+                width: 5em;
+                border-radius: 5px;
+                margin-right: 1em;
+            }
+            &>div{
+                margin-right: 1em;
+            }
+        }
+    }
+}

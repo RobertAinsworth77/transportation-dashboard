@@ -1,5 +1,5 @@
-import UserEntity from "../../entities/UserEntity";
-import UserProvider from "../../provider/user/UserProvider";
+import UserEntity, { UserEntityStatus } from "../../entities/UserEntity";
+import UserProvider from "../../providers/user/UserProvider";
 import AuthRepository from "../../repositories/AuthRepository";
 
 interface props { authRepository: AuthRepository, userProvider: UserProvider }
@@ -13,11 +13,20 @@ export default class GetCurrentUserUseCase {
     }
 
     public call = async () => new Promise<UserEntity>(async (resolve, reject) => {
-        const response = await this._authRepository.getCurrentUser();
-        if (response) {
-            this._userProvider.actions?.setUser(response);
-            return resolve(response);
+        try {
+            const response = await this._authRepository.getCurrentUser();
+            if (response?.status == UserEntityStatus.deleted) {
+                await this._authRepository.deleteUser();
+                await this._authRepository.signOut();
+                this._userProvider.contextType?.setUser(undefined);
+                return reject();
+            } else {
+                this._userProvider.contextType?.setUser(response);
+                return resolve(response);
+            }
+        } catch (error) {
+            console.log('GetCurrentUserUseCase error', error);
+            return reject(error);
         }
-        else return reject();
     });
 }

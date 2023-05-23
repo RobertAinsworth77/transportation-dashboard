@@ -6,9 +6,9 @@ export interface response {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    driverses: DriverEntity[]
+    drivers: DriverEntity[]
 }
-export default class GetFiltredDriversesUseCase {
+export default class GetFiltredDriversUseCase {
     _driverRepository: DriverRepository;
 
     constructor(_: props) {

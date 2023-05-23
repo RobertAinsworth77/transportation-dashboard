@@ -11,7 +11,7 @@ export default class CreateTripUseCase {
 
     public call = async (trip: TripEntity) => new Promise<void>(async (resolve, reject) => {
         try {
-            await this._tripRepository.update(trip);
+            await this._tripRepository.create(trip);
             return resolve();
         } catch (_) {
             return reject();

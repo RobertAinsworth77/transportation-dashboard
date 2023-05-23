@@ -1,5 +1,3 @@
-import DriverEntity from "./DriverEntity";
-import EmployeeEntity from "./EmployeeEntity";
 import PositionEntity from "./PositionEntity";
 
 export default interface AlertEntity {
@@ -7,5 +5,5 @@ export default interface AlertEntity {
     name: string,
     created_at: Date,
     position: PositionEntity;
-    creator: DriverEntity | EmployeeEntity
+    tripId: number,
 }

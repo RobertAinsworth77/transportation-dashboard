@@ -1,0 +1,16 @@
+.TableComponent{
+    .btn_add_table{
+        font-weight: bold;
+        background-color: var(--color-yellow);
+        border-radius: 100%;
+        width: 1.5em;
+        height: 1.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    table{
+        background-color: white;
+    }
+}

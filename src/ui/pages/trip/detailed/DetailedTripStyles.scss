@@ -1,0 +1,21 @@
+.detailed_trip_page {
+    .passenger_content{
+        line-height: 1.1em;
+        display: flex;
+        flex-direction: column;
+    }
+    .circle_name{
+        background-color: var(--color-green);
+        color: var(--color-yellow);
+        border-radius: 100%;
+        width: 2.5em;
+        height: 2.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-transform: uppercase;
+        margin-right: 0.5em;
+        font-weight: bold;
+    }
+}

@@ -1,10 +1,10 @@
 import DriverEntity from "../entities/DriverEntity";
 
-interface GetFiltredResponse {
+export interface GetFiltredResponse {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    driverses: DriverEntity[]
+    drivers: DriverEntity[]
 }
 
 export default interface DriverRepository {
@@ -12,6 +12,6 @@ export default interface DriverRepository {
     getFiltred: (word: string, page: number, itemsPerPage: number) => Promise<GetFiltredResponse>
     getById: (id: number) => Promise<DriverEntity>
     delete: (id: number) => Promise<void>
-    update: (driver: DriverEntity) => Promise<DriverEntity>
-    create: (driver: DriverEntity, password: string) => Promise<DriverEntity>
+    update: (driver: DriverEntity) => Promise<void>
+    create: (driver: DriverEntity, password: string) => Promise<void>
 }

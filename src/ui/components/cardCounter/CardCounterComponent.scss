@@ -1,0 +1,12 @@
+.card_counter_component {
+    .counter_container{
+        margin: 1em auto;
+        border-radius: 100%;
+        border: solid 0.5em var(--color-yellow);
+        width: 6em;
+        height: 6em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

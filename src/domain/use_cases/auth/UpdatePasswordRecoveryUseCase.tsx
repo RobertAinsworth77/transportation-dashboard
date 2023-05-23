@@ -10,10 +10,10 @@ export default class UpdatePasswordRecoveryUseCase {
 
     public call = async (email: string, password: string, code: string) => new Promise<void>(async (resolve, reject) => {
         try {
-            await this._authRepository.updatePasswordByRecovery(email, password, code);
-            return resolve();
+            const as = await this._authRepository.updatePasswordByRecovery(email, password, code);
+            resolve();
         } catch (_) {
-            return reject();
+            reject(_);
         }
     });
 }

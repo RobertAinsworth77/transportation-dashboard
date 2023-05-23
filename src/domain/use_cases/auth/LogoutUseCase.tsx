@@ -1,5 +1,5 @@
 import UserEntity from "../../entities/UserEntity";
-import UserProvider from "../../provider/user/UserProvider";
+import UserProvider from "../../providers/user/UserProvider";
 import AuthRepository from "../../repositories/AuthRepository";
 
 interface props { authRepository: AuthRepository, userProvider: UserProvider }
@@ -14,7 +14,7 @@ export default class LoginUseCase {
 
     public call = async () => new Promise<void>(async (resolve, reject) => {
         const response = await this._authRepository.signOut();
-        this._userProvider.actions?.setUser(undefined);
+        this._userProvider.contextType?.setUser(undefined);
         return resolve();
     });
 }

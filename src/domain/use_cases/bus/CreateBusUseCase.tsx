@@ -11,7 +11,7 @@ export default class CreateBusUseCase {
 
     public call = async (bus: BusEntity) => new Promise<void>(async (resolve, reject) => {
         try {
-            await this._busRepository.update(bus);
+            await this._busRepository.create(bus);
             return resolve();
         } catch (_) {
             return reject();

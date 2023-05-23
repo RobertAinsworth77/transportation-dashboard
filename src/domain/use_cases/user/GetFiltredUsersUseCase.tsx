@@ -18,6 +18,7 @@ export default class GetFiltredUsersUseCase {
     public call = async (word: string, page: number, itemsPerPage: number) => new Promise<response>(async (resolve, reject) => {
         try {
             const response = await this._userRepository.getFiltred(word, page, itemsPerPage);
+            console.log('response getfilredusersusecase', response);
             return resolve(response);
         } catch (_) {
             return reject();

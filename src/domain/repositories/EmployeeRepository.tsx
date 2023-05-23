@@ -11,6 +11,6 @@ export default interface EmployeeRepository {
     getFiltred: (word: string, page: number, itemsPerPage: number) => Promise<GetFiltredResponse>
     getById: (id: number) => Promise<EmployeeEntity>
     delete: (id: number) => Promise<void>
-    update: (driver: EmployeeEntity) => Promise<EmployeeEntity>
+    update: (driver: EmployeeEntity) => Promise<void>
     create: (driver: EmployeeEntity, password: string) => Promise<EmployeeEntity>
 }

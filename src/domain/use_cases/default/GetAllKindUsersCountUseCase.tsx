@@ -1,13 +1,9 @@
-import AlertEntity from "../../entities/AlertEntity";
-import AlertProvider from "../../provider/alert/AlertProvider";
-import AlertRepository from "../../repositories/AlertRepository";
 import DefaultRepository from "../../repositories/DefaultRepository";
 
 interface props { defaultRepository: DefaultRepository }
 export interface response {
-    busses_count: number,
-    trips_count: number,
-    routes_count: number,
+    users_count: number,
+    drivers_count: number,
 }
 export default class GetAllKindUsersCountUseCase {
     _defaultRepository: DefaultRepository;

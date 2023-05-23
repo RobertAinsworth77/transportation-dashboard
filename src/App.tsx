@@ -1,25 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-phone-input-2/lib/style.css'
+import DepenedencyInjectorImpl from './di/DependencyInjection';
+import DependencyInjectionProvider from './di/provider/DependencyInjectionProvider';
+import RoutesComponent from './ui/routes/RoutesComponent';
 
 function App() {
+  const di = DepenedencyInjectorImpl;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <di.providers.user.Provider>
+      <di.providers.languague.Provider>
+        <di.providers.alert.Provider>
+          <di.providers.modals.Provider>
+            <DependencyInjectionProvider dependencyInjector={di}>
+              <RoutesComponent />
+            </DependencyInjectionProvider>
+          </di.providers.modals.Provider>
+        </di.providers.alert.Provider>
+      </di.providers.languague.Provider>
+    </di.providers.user.Provider>
   );
 }
 

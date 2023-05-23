@@ -13,5 +13,5 @@ export default interface BusRepository {
     searchByWord: (word: string) => Promise<BusEntity[]>;
     delete: (id: number) => Promise<void>
     update: (driver: BusEntity) => Promise<void>
-    create: (driver: BusEntity, password: string) => Promise<BusEntity>
+    create: (driver: BusEntity) => Promise<void>
 }

@@ -1,6 +1,8 @@
 import UserAccountEntity from "./UserAccountEntity";
 
-enum UserEntityRole { admin = 'admin', normal = 'normal' }
+export enum UserEntityRole { admin = 'admin', normal = 'normal' }
+export enum UserEntityStatus { active = 'active',  deleted = 'deleted' }
 export default interface UserEntity extends UserAccountEntity {
-    role: UserEntityRole
+    role: UserEntityRole,
+    status: UserEntityStatus,
 }

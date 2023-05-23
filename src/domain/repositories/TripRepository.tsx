@@ -10,6 +10,6 @@ export default interface TripRepository {
     getFiltred: (word: string, page: number, itemsPerPage: number) => Promise<GetFiltredResponse>
     getById: (id: number) => Promise<TripEntity>
     delete: (id: number) => Promise<void>
-    update: (driver: TripEntity) => Promise<TripEntity>
-    create: (driver: TripEntity, password: string) => Promise<TripEntity>
+    update: (trip: TripEntity) => Promise<void>
+    create: (trip: TripEntity) => Promise<void>
 }

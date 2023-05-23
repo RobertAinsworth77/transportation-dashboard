@@ -11,7 +11,7 @@ export default class CreateRouteUseCase {
 
     public call = async (route: RouteEntity) => new Promise<void>(async (resolve, reject) => {
         try {
-            await this._routeRepository.update(route);
+            await this._routeRepository.create(route);
             return resolve();
         } catch (_) {
             return reject();

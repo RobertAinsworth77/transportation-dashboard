@@ -1,0 +1,95 @@
+:root {
+  --color-green: #233746;
+  --color-yellow: #E6C860;
+  --color-gray-light: #EFEFEF;
+}
+
+.bg {
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  &_1 {
+    // background-image: url(../public/assets/bg/bg_1.png);
+  }
+
+  &_2 {
+    background-image: url(../public/assets/bg/bg_2.png);
+  }
+}
+
+form {
+  .form-group.error {
+
+    input,
+    textarea,
+    select {
+      &::placeholder {
+        color: #bf1650;
+      }
+
+      color: #bf1650;
+      border: solid thin #bf1650;
+      background-color: #bf165055;
+    }
+
+    aside {
+      color: #bf1650;
+
+      &::before {
+        display: inline;
+        content: "⚠ ";
+      }
+    }
+
+    label {
+      color: #bf1650;
+    }
+  }
+}
+
+.hover:hover {
+  cursor: pointer;
+}
+
+.text {
+  &_yellow {
+    color: var(--color-yellow);
+  }
+
+  &_bold {
+    font-weight: bold;
+  }
+}
+
+.btn {
+  &.btn_primary {
+    background-color: var(--color-green);
+    color: white;
+
+    &:hover {
+      background-color: var(--color-green);
+      color: white;
+    }
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+body .react-tel-input .form-control {
+  width: 100%;
+  height: auto;
+}
+
+.password_input_wrapper {
+  position: relative;
+
+  .visibility_icon {
+    position: absolute;
+    top: 50%;
+    right: 0.5em;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+}
