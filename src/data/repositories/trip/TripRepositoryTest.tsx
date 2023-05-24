@@ -1,3 +1,4 @@
+import EmployeeEntity from "../../../domain/entities/EmployeeEntity";
 import TripEntity, { TripState } from "../../../domain/entities/TripEntity";
 import TripRepository, { GetFiltredResponse } from "../../../domain/repositories/TripRepository";
 
@@ -62,8 +63,7 @@ const TripRepositoryTest: TripRepository = {
                             lat: 18.30075,
                             lng: -78.073048,
                         },
-                        end_point:
-                        {
+                        end_point: {
                             lat: 18.28075,
                             lng: -78.073048,
                         },
@@ -163,8 +163,7 @@ const TripRepositoryTest: TripRepository = {
                             lat: 18.30075,
                             lng: -78.073048,
                         },
-                        end_point:
-                        {
+                        end_point: {
                             lat: 18.28075,
                             lng: -78.073048,
                         },
@@ -222,7 +221,6 @@ const TripRepositoryTest: TripRepository = {
                         }
                     ],
                 }
-
             ]
         });
     }),
@@ -269,8 +267,7 @@ const TripRepositoryTest: TripRepository = {
                     lat: 18.28075,
                     lng: -78.073048,
                 },
-                end_point:
-                {
+                end_point: {
                     lat: 18.28075,
                     lng: -77.873048,
                 },
@@ -281,56 +278,56 @@ const TripRepositoryTest: TripRepository = {
                 }
             },
             passengers: [
-                {
-                    id: 1,
-                    name: 'name',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                },
-                {
-                    id: 2,
-                    name: 'name2',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                },
-                {
-                    id: 3,
-                    name: 'name3',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                }
+                // {
+                //     id: 1,
+                //     name: 'name',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // },
+                // {
+                //     id: 2,
+                //     name: 'name2',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // },
+                // {
+                //     id: 3,
+                //     name: 'name3',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // }
             ],
             bookings: [
-                {
-                    id: 1,
-                    name: 'name',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                },
-                {
-                    id: 2,
-                    name: 'name2',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                },
-                {
-                    id: 3,
-                    name: 'name3',
-                    phone: 'phone',
-                    email: 'email',
-                    enabled: true,
-                    country: 'country',
-                }
+                // {
+                //     id: 1,
+                //     name: 'name',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // },
+                // {
+                //     id: 2,
+                //     name: 'name2',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // },
+                // {
+                //     id: 3,
+                //     name: 'name3',
+                //     phone: 'phone',
+                //     email: 'email',
+                //     enabled: true,
+                //     country: 'country',
+                // }
             ],
         }
         );
@@ -343,7 +340,33 @@ const TripRepositoryTest: TripRepository = {
     }),
     create: (trip: TripEntity): Promise<void> => new Promise<void>((resolve, reject) => {
         resolve();
-    })
+    }),
+    getPassengersByTripId: (id: number): Promise<EmployeeEntity[]> => new Promise<EmployeeEntity[]>((resolve, reject) => {
+        resolve([{
+            id: 1,
+            name: 'name',
+            phone: 'phone',
+            email: 'email',
+            enabled: true,
+            country: 'country',
+        },
+        {
+            id: 2,
+            name: 'name2',
+            phone: 'phone',
+            email: 'email',
+            enabled: true,
+            country: 'country',
+        },
+        {
+            id: 3,
+            name: 'name3',
+            phone: 'phone',
+            email: 'email',
+            enabled: true,
+            country: 'country',
+        }]);
+    }),
 }
 
 export default TripRepositoryTest;

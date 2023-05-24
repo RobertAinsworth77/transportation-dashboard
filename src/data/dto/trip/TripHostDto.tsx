@@ -50,7 +50,7 @@ const fromJson = (json: any): TripEntity => {
         bus_id: json.vehicle_id,
         route_id: json.route_id,
         passengers_count: json.passengers_count,
-        bookings_pending_count: json.reserves_pending_count,
+        bookings_pending_count: json.bookings_pending_count,
         driver: json.driver != null ? DriverHostDto.fromJson(json.driver) : undefined,
         bus: json.vehicle != null ? BusHostDto.fromJson(json.vehicle) : undefined,
         route: json.route != null ? RouteHostDto.fromJson(json.route) : undefined,

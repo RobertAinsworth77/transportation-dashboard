@@ -1,3 +1,4 @@
+import EmployeeEntity from "../entities/EmployeeEntity"
 import TripEntity from "../entities/TripEntity"
 
 export interface GetFiltredResponse {
@@ -12,4 +13,5 @@ export default interface TripRepository {
     delete: (id: number) => Promise<void>
     update: (trip: TripEntity) => Promise<void>
     create: (trip: TripEntity) => Promise<void>
+    getPassengersByTripId: (id: number) => Promise<EmployeeEntity[]>
 }

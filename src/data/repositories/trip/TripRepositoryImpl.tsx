@@ -1,7 +1,9 @@
+import EmployeeEntity from "../../../domain/entities/EmployeeEntity";
 import TripEntity, { TripState } from "../../../domain/entities/TripEntity";
 import TripRepository, { GetFiltredResponse } from "../../../domain/repositories/TripRepository";
 import BusHostDto from "../../dto/bus/BusHostDto";
 import DriverHostDto from "../../dto/driver/DriverHostDto";
+import EmployeeHostDto from "../../dto/employee/EmployeeHostDto";
 import RouteHostDto from "../../dto/route/RouteHostDto";
 import SiteHostDto from "../../dto/site/SiteHostDto";
 import TripHostDto from "../../dto/trip/TripHostDto";
@@ -21,7 +23,7 @@ const TripRepositoryImpl: TripRepository = {
                 site: SiteHostDto.fromJson(trip),
                 driver: DriverHostDto.fromJson(trip),
                 bus: BusHostDto.fromJson(trip),
-            }
+            };
             return tripTemp;
         });
         resolve({
@@ -33,21 +35,27 @@ const TripRepositoryImpl: TripRepository = {
     }),
     getById: (id: number): Promise<TripEntity> => new Promise<TripEntity>(async (resolve, reject) => {
         try {
-            const response = await HostApi.get(`/dashboard/trips?id=${id}`);
-            const driver = DriverHostDto.fromJson(response[0]);
-            const bus = BusHostDto.fromJson(response[0]);
-            const route = RouteHostDto.fromJson(response[0]);
-            const site = SiteHostDto.fromJson(response[0]);
+            const responseText = await HostApi.get(`/dashboard/trips?id=${id}`);
+            const replaced = responseText.replace(/'/g, '"').replace(/\\xa0/g, '\\n');
+            console.log('269', replaced.substring(190, replaced.length - 1));
+            console.log('responsetext', replaced);
+            const response = JSON.parse(replaced);
+            console.log('response', response);
+            const driver = DriverHostDto.fromJson(response);
+            const bus = BusHostDto.fromJson(response);
+            const route = RouteHostDto.fromJson(response);
+            const site = SiteHostDto.fromJson(response);
             route.site = site;
-            const trip = TripHostDto.fromJson(response[0]);
+            const trip = TripHostDto.fromJson(response);
             const tripMapped = {
                 ...trip,
                 driver,
                 bus,
                 route,
-            }
+            };
             resolve(tripMapped);
         } catch (error) {
+            console.log('error', error);
             reject(error);
         }
     }),
@@ -63,27 +71,38 @@ const TripRepositoryImpl: TripRepository = {
         let body = TripHostDto.toJson(trip);
         let route = trip.route != undefined ? RouteHostDto.toJson(trip.route) : {};
         console.log('route of route host', route, trip.route);
-        body = {...body, ...route, site_id: trip.route?.site?.id};
-        if(body.route_id == 0 || body.route_id == undefined) body.route_id = "";
-        console.log('llega aqui el tema del body', body, {...body, ...body.route});
+        body = { ...body, ...route, site_id: trip.route?.site?.id };
+        if (body.route_id == 0 || body.route_id == undefined)
+            body.route_id = "";
+        console.log('llega aqui el tema del body', body, { ...body, ...body.route });
         await HostApi.put(`/dashboard/trips?id=${trip.id}`, body).then((response) => {
             resolve();
         }).catch((error) => reject(error));
     }),
-    create: (trip: TripEntity): Promise<void> => new Promise<void>( async (resolve, reject) => {
+    create: (trip: TripEntity): Promise<void> => new Promise<void>(async (resolve, reject) => {
         let body = TripHostDto.toJson(trip);
         let route = trip.route != undefined ? RouteHostDto.toJson(trip.route) : {};
         console.log('route of route host', route, trip.route);
-        body = {...body, ...route};
-        if(body.route_id == 0 || body.route_id == undefined) body.route_id = "";
-        console.log('llega aqui el tema del body', body, {...body, ...body.route});
+        body = { ...body, ...route };
+        if (body.route_id == 0 || body.route_id == undefined)
+            body.route_id = "";
+        console.log('llega aqui el tema del body', body, { ...body, ...body.route });
         try {
             await HostApi.post('/dashboard/trips', body);
             resolve();
         } catch (error) {
             reject(error);
         }
-    })
+    }),
+    getPassengersByTripId: (id: number): Promise<EmployeeEntity[]> => new Promise<EmployeeEntity[]>(async (resolve, reject) => {
+        try {
+            const response = await HostApi.get(`/dashboard/trips/passengers?id=${id}`);
+            const responseParsed = response.map((passenger: any) => EmployeeHostDto.fromJson(passenger));
+            resolve(responseParsed);
+        } catch (error) {
+            reject(error);
+        }
+    }),
 }
 
 export default TripRepositoryImpl;

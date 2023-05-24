@@ -15,6 +15,7 @@ import RouteMapComponent from "../../../components/RouteMap/RouteMapComponent";
 import { routes } from "../../../routes/RoutesComponent";
 import StringOptions from "../../../utils/StringOptions";
 import NotFoundComponent from '../../../components/notFound/NotFoundComponent';
+import NotResultsComponent from '../../../components/notResults/NotResultsComponent';
 
 const DetailedTripPage: FC<{}> = () => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -24,8 +25,12 @@ const DetailedTripPage: FC<{}> = () => {
     const [trip, setTrip] = useState<TripEntity | null | undefined>(undefined);
 
     const _loadTrip = async () => {
-        const trip = await di.useCases.getTripByIdUseCase?.call(parseInt(id!));
-        setTrip(trip);
+        try {
+            const trip = await di.useCases.getTripByIdUseCase?.call(parseInt(id!));
+            setTrip(trip);
+        } catch (error) {
+            setTrip(null);
+        }
     }
 
     useEffect(() => {
@@ -33,21 +38,24 @@ const DetailedTripPage: FC<{}> = () => {
     }, [id]);
 
     if (trip === undefined) return <LoadingComponent />
-    else if (trip === null) return <NotFoundComponent />
+    else if (trip === null) return <NotResultsComponent />
     return <div className="detailed_trip_page">
         <div className="row">
             <div className="col-lg-9">
                 <h5>{i18n(KeyWordLocalization.DetailedTripPageTitle)} - {i18n(trip!.state)}</h5>
             </div>
             <div className="col-lg-3 d-flex jutify-content-end align-items-center">
-                <Link to={`${routes.edit_trip.relativePath}/${id}`} className="btn btn-light d-flex align-items-center mx-3">
-                    <MdEdit />
-                    <span className="mx-2">{i18n(KeyWordLocalization.Edit)}</span>
-                </Link>
-                <button type="button" className="btn btn-light d-flex align-items-center">
+                {
+                    trip.state == TripState.inProgress &&
+                    <Link to={`${routes.edit_trip.relativePath}/${id}`} className="btn btn-light d-flex align-items-center mx-3">
+                        <MdEdit />
+                        <span className="mx-2">{i18n(KeyWordLocalization.Edit)}</span>
+                    </Link>
+                }
+                {/* <button type="button" className="btn btn-light d-flex align-items-center">
                     <MdDelete />
                     <span className="mx-2">{i18n(KeyWordLocalization.Delete)}</span>
-                </button>
+                </button> */}
             </div>
         </div>
         <div className="row mt-3">
@@ -57,7 +65,7 @@ const DetailedTripPage: FC<{}> = () => {
                         <CardCounterComponent title={i18n(KeyWordLocalization.TripEntityId)} counter={trip.id} />
                     </div>
                     <div className="col-lg-4 mb-3">
-                        <CardCounterComponent title={i18n(KeyWordLocalization.TripEntityBookingsCount)} counter={trip.passengers.length} />
+                        <CardCounterComponent title={i18n(KeyWordLocalization.TripEntityBookingsCount)} counter={trip.bookings_pending_count ?? 0} />
                     </div>
                     <div className="col-lg-4 mb-3">
                         <CardCounterComponent title={i18n(KeyWordLocalization.TripEntityPassengersCount)} counter={trip.passengers_count ?? 0} />
@@ -70,7 +78,7 @@ const DetailedTripPage: FC<{}> = () => {
                                 <h3 className="w-100">{i18n(KeyWordLocalization.TripEntityRoute)}</h3>
                                 <div className="col-lg-6 my-3">
                                     <strong>{i18n(KeyWordLocalization.RouteEntityName)}</strong><br />
-                                    <span>{trip.route?.name}</span>
+                                    <span style={{whiteSpace: 'pre-line'}}>{trip.route?.name}</span>
                                 </div>
                                 <div className="col-lg-6 my-3">
                                     <strong>{i18n(KeyWordLocalization.RouteEntityStartPoint)}</strong><br />
@@ -78,7 +86,7 @@ const DetailedTripPage: FC<{}> = () => {
                                 </div>
                                 <div className="col-lg-6 my-3">
                                     <strong>{i18n(KeyWordLocalization.RouteEntityDescription)}</strong><br />
-                                    <span>{trip.route?.description}</span>
+                                    <span style={{whiteSpace: 'pre-line'}}>{trip.route?.description}</span>
                                 </div>
                                 <div className="col-lg-6 my-3">
                                     <strong>{i18n(KeyWordLocalization.RouteEntityEndPoint)}</strong><br />
