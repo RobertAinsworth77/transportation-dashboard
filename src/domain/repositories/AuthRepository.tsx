@@ -1,3 +1,4 @@
+import UserAccountEntity from "../entities/UserAccountEntity";
 import UserEntity from "../entities/UserEntity";
 
 export default interface AuthRepository {
@@ -8,7 +9,7 @@ export default interface AuthRepository {
     confirmUser: (email: string, code: string) => Promise<void>
     updatePasswordByRecovery: (email: string, newPassword: string, code: string) => Promise<void>
     getCurrentUser: () => Promise<UserEntity>
-    addUser: (user: UserEntity, password: string) => Promise<void>
+    addUser: (user: UserAccountEntity, password: string) => Promise<void>
     deleteUser: () => Promise<void>
     refreshToken: () => Promise<void>
 }

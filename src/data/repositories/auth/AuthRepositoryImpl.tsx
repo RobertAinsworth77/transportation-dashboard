@@ -4,6 +4,7 @@ import UserPool, { APP_CLIENT_ID, CIServiceProvider } from "../../settings/aws/U
 import { CognitoUser, AuthenticationDetails, } from "amazon-cognito-identity-js";
 import HostApi from "../../settings/host/HostApi";
 import UserHostDto from "../../dto/user/UserHostDto";
+import UserAccountEntity from "../../../domain/entities/UserAccountEntity";
 
 const _getUserFromDb = (): Promise<UserEntity> => new Promise<UserEntity>(async (resolve, reject) => {
     try {
@@ -138,7 +139,7 @@ const AuthRepositoryImpl: AuthRepository = {
         }
         else reject();
     }),
-    addUser: (user: UserEntity, password: string): Promise<void> => new Promise<void>(async (resolve, reject) => {
+    addUser: (user: UserAccountEntity, password: string): Promise<void> => new Promise<void>(async (resolve, reject) => {
         //aws add user
         const params = {
             ClientId: APP_CLIENT_ID,

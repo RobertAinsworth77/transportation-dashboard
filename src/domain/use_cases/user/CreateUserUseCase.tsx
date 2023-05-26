@@ -18,15 +18,14 @@ export default class CreateUserUseCase {
             await this._authRepository.addUser(user, password);
         } catch (error: any) {
             if (error.code == 'LimitExceededException') return reject(error.code);
-            else if (error.code == 'UsernameExistsException') {
-                try {
-                    await this._userRepository.create(user)
-                    return resolve();
-                } catch (_) {
-                    return reject(KeyWordLocalization.UnknownError);
-                }
-            }
-            else return reject(KeyWordLocalization.UnknownError);
+            else if (error.code != 'UsernameExistsException') return reject(KeyWordLocalization.UnknownError);
+        }
+
+        try {
+            await this._userRepository.create(user)
+            return resolve();
+        } catch (_) {
+            return reject(KeyWordLocalization.UnknownError);
         }
     });
 }

@@ -32,7 +32,7 @@ const TripPage: FC<{}> = () => {
         setTotalResults(undefined);
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
-        const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, currentPage, itemsPerPageR);
+        const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR);
         setTrips(response.trips);
         setCurrentPage(response.current_page);
         setTotalPages(response.total_pages);

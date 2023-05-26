@@ -13,5 +13,5 @@ export default interface DriverRepository {
     getById: (id: number) => Promise<DriverEntity>
     delete: (id: number) => Promise<void>
     update: (driver: DriverEntity) => Promise<void>
-    create: (driver: DriverEntity, password: string) => Promise<void>
+    create: (driver: DriverEntity) => Promise<void>
 }

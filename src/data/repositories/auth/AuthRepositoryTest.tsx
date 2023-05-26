@@ -1,3 +1,4 @@
+import UserAccountEntity from "../../../domain/entities/UserAccountEntity";
 import UserEntity, { UserEntityRole, UserEntityStatus } from "../../../domain/entities/UserEntity";
 import AuthRepository from "../../../domain/repositories/AuthRepository";
 
@@ -39,7 +40,7 @@ const AuthRepositoryTest: AuthRepository = {
             status: UserEntityStatus.active,
         });
     }),
-    addUser: (user: UserEntity, password: string): Promise<void> => new Promise<void>((resolve, reject) => {
+    addUser: (user: UserAccountEntity, password: string): Promise<void> => new Promise<void>((resolve, reject) => {
         resolve();
     }),
     deleteUser: (): Promise<void> => new Promise<void>((resolve, reject) => {

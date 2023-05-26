@@ -66,11 +66,10 @@ const DriverRepositoryImpl: DriverRepository = {
             reject(error);
         }
     }),
-    create: (driver: DriverEntity, password: string): Promise<void> => new Promise<void>(async (resolve, reject) => {
+    create: (driver: DriverEntity): Promise<void> => new Promise<void>(async (resolve, reject) => {
         try {
             const body = {
                 ...DriverHostDto.toJson(driver),
-                password,
             }
             body.phone = "+" + body.phone;
             await HostApi.post('/dashboard/users/drivers/add', body);

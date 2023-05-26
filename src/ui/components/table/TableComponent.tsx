@@ -13,13 +13,13 @@ import NotResultsComponent from '../notResults/NotResultsComponent';
 
 const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title }) => {
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm();
+  const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm();
   const formRef = useRef<HTMLInputElement>(null);
 
   let _timerTap: any;
   const _handleChangeText = () => {
     clearTimeout(_timerTap);
-    _timerTap = setTimeout(() => onSubmit(getValues()), 2000);
+    _timerTap = setTimeout(() => onSubmit(getValues()), 1000);
   }
   const onSubmit = (data: any) => {
     searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage));
@@ -97,7 +97,10 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
                 <option value="100">100</option>
               </select>
               <span> items, page </span>
-              <input type="number" className='form-control mx-2' min={1} max={totalPages} defaultValue={page} {...register('page')} style={{ width: '6em' }} />
+              <input type="number" className='form-control mx-2' min={1} max={totalPages} defaultValue={page} {...register('page')} style={{ width: '6em' }} onKeyUp={_handleChangeText} onChange={(val)=>{
+                setValue('page', val.target.value);
+                _handleChangeText();
+              }}/>
               <input type="submit" ref={formRef} hidden />
             </div>
           </div>

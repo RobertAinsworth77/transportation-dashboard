@@ -157,7 +157,7 @@ const updateBusUseCase = new UpdateBusUseCase({ busRepository: repositories.busR
 const getAllKindUsersCountUseCase = new GetAllKindUsersCountUseCase({ defaultRepository: repositories.defaultRepository });
 const getAllCountersRelatedToTripUseCase = new GetAllCountersRelatedToTripUseCase({ defaultRepository: repositories.defaultRepository });
 
-const createDriverUseCase = new CreateDriverUseCase({ driverRepository: repositories.driverRepository });
+const createDriverUseCase = new CreateDriverUseCase({ driverRepository: repositories.driverRepository, authRepository: repositories.authRepository });
 const deleteDriverUseCase = new DeleteDriverUseCase({ driverRepository: repositories.driverRepository });
 const getDriverByIdUseCase = new GetDriverByIdUseCase({ driverRepository: repositories.driverRepository });
 const getFiltredDriversUseCase = new GetFiltredDriversUseCase({ driverRepository: repositories.driverRepository });

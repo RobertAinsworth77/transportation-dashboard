@@ -1,6 +1,6 @@
 {
   "name": "itel-transportation-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "itel's Transportation Admin Module",
   "icon": "logo.ico",
   "main": "electron-starter.js",

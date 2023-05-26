@@ -53,10 +53,10 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
       await di.useCases.createDriverUseCase.call(tempUser, data.password);
       closeModalCustom();
       addToast(i18n(KeyWordLocalization.SavedSuccessfully), 'success', null);
+      done();
     } catch (error) {
       addToast(i18n(KeyWordLocalization.ErrorSaving), 'error', null);
     }
-    done();
   }
 
   const _handleChangeDriver = () => {
@@ -114,7 +114,7 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
           <ErrorMessage as="aside" errors={errors} name="phone" />
         </div>
 
-        {/* {driver == undefined && < div className={`col-12 col-lg-6 my-2 form-group ${errors.password ? 'error' : ''}`}>
+        {driver == undefined && < div className={`col-12 col-lg-6 my-2 form-group ${errors.password ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.Password)}</label>
           <input type="password" {...register("password", Validators({ required: true, minLength: 6 }))}
             className={`form-control ${errors.password ? 'error' : ''}`} placeholder={i18n(KeyWordLocalization.Password)} />
@@ -131,7 +131,7 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
             },
           }))} className="form-control" placeholder={i18n(KeyWordLocalization.PasswordConfirm)} />
           <ErrorMessage as="aside" errors={errors} name="confirm_password" />
-        </div>} */}
+        </div>}
         {/* <div className="col-12 col-lg-6">
           <AutoCompleteComponent onSearch={searchBusses} errors={errors} label={i18n(KeyWordLocalization.DriverEntityDefaultBus)} keyName="defaultBus" onChange={setValue}
             register={register} watch={watch} options={busses.map((bus) => { return { label: bus.plate, id: bus } })} />

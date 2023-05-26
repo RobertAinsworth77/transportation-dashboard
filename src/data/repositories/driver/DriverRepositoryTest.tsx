@@ -119,7 +119,7 @@ const DriverRepositoryTest: DriverRepository = {
     update: (driver: DriverEntity): Promise<void> => new Promise<void>((resolve, reject) => {
         resolve();
     }),
-    create: (driver: DriverEntity, password: string): Promise<void> => new Promise<void>((resolve, reject) => {
+    create: (driver: DriverEntity): Promise<void> => new Promise<void>((resolve, reject) => {
         resolve();
     })
 }
