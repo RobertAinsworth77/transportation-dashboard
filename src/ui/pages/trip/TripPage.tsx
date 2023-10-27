@@ -34,13 +34,6 @@ const TripPage: FC<{}> = () => {
         setTotalResults(undefined);
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
-<<<<<<< HEAD
-        const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR);
-        setTrips(response.trips);
-        setCurrentPage(response.current_page);
-        setTotalPages(response.total_pages);
-        setTotalResults(response.total_rows);
-=======
         setOrderBy(_orderBy);
         try {
             const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR, _orderBy);
@@ -52,7 +45,6 @@ const TripPage: FC<{}> = () => {
         } catch (error) {
             setTrips([]);
         }
->>>>>>> test
     }
     const _handleAdd = async () => navigate(routes.add_trip.relativePath);
     const _handleEdit = async (trip: TripEntity) => navigate(routes.edit_trip.relativePath + '/' + trip.id);

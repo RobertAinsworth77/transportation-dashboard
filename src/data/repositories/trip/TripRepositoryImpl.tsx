@@ -1,17 +1,11 @@
 import EmployeeEntity from "../../../domain/entities/EmployeeEntity";
-<<<<<<< HEAD
-=======
 import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
->>>>>>> test
 import TripEntity, { TripState } from "../../../domain/entities/TripEntity";
 import TripRepository, { GetFiltredResponse } from "../../../domain/repositories/TripRepository";
 import BusHostDto from "../../dto/bus/BusHostDto";
 import DriverHostDto from "../../dto/driver/DriverHostDto";
 import EmployeeHostDto from "../../dto/employee/EmployeeHostDto";
-<<<<<<< HEAD
-=======
 import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
->>>>>>> test
 import RouteHostDto from "../../dto/route/RouteHostDto";
 import SiteHostDto from "../../dto/site/SiteHostDto";
 import TripHostDto from "../../dto/trip/TripHostDto";
@@ -47,14 +41,7 @@ const TripRepositoryImpl: TripRepository = {
         try {
             const responseText = await HostApi.get(`/dashboard/trips?id=${id}`);
             const replaced = responseText.replace(/'/g, '"').replace(/\\xa0/g, '\\n');
-<<<<<<< HEAD
-            console.log('269', replaced.substring(190, replaced.length - 1));
-            console.log('responsetext', replaced);
             const response = JSON.parse(replaced);
-            console.log('response', response);
-=======
-            const response = JSON.parse(replaced);
->>>>>>> test
             const driver = DriverHostDto.fromJson(response);
             const bus = BusHostDto.fromJson(response);
             const route = RouteHostDto.fromJson(response);

@@ -1,8 +1,5 @@
 import EmployeeEntity from "../entities/EmployeeEntity"
-<<<<<<< HEAD
-=======
 import { OrdeByFilterEntity } from "../entities/OrdeByFilterEntity"
->>>>>>> test
 import TripEntity from "../entities/TripEntity"
 
 export interface GetFiltredResponse {

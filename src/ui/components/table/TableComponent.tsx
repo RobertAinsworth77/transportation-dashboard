@@ -130,16 +130,8 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-<<<<<<< HEAD
-              <span> items, page </span>
-              <input type="number" className='form-control mx-2' min={1} max={totalPages} defaultValue={page} {...register('page')} style={{ width: '6em' }} onKeyUp={_handleChangeText} onChange={(val)=>{
-                setValue('page', val.target.value);
-                _handleChangeText();
-              }}/>
-=======
               <span> {i18n(KeyWordLocalization.TableComponentItemsPage)} </span>
               <input type="number" className='form-control mx-2' min={1} max={totalPages} defaultValue={page} {...register('page')} style={{ width: '6em' }} onKeyUp={_handleInputPageKeyUp} onChange={_handleInputPageChange} />
->>>>>>> test
               <input type="submit" ref={formRef} hidden />
             </div>
           </div>
