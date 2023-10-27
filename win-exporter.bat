@@ -1,35 +1,19 @@
-#!/bin/bash
+start /wait cmd /c "npm i"
+@REM Step 2: Run "npm run build"
+start /wait cmd /c "npm run build"
 
-# Step 1: Run "npm i"
-npm i
+@REM Step 3: If folder "electron" does not exist, create it
+IF NOT EXIST electron mkdir electron
 
-# Step 2: Run "npm run build"
-npm run build
+@REM @REM Step 4: Copy files from "dist" to "electron"
+cp -rf ./build/* ./electron/
+@REM Step 5: Replace all '="/' with '="./' in index.html
+powershell -Command "(gc ./electron/index.html) -replace '=\"/','=\"./'| Out-File ./electron/index.html"
 
-# Step 3: Change directory to "electron"
 cd electron
-
-# Step 4: Check if electron-builder is installed
-if ! npm list electron-builder | grep -q electron-builder; then
-  # Install electron-builder
-  npm install electron-builder --save-dev
-fi
-
-# Step 5: Run "npm i" again
-npm i
-
-# Step 6: Change directory back to the previous directory
-cd ..
-
-# Step 7: Copy the build folder contents to "electron" directory (overwriting existing files)
-cp -Rf build/. electron/
-
-# Step 8: Replace all '="/' with '="./' in index.html
-sed -i 's/="\//="./g' electron/build/index.html
-
-# Step 9: Run "npm run build" in the "electron" directory
-cd electron
-npm run build
-
-# Step 10: Open the file explorer in the "dist" directory
-open dist
+start /wait cmd /c "npm install electron --save-dev"
+start /wait cmd /c "npm i"
+start /wait cmd /c "npm list electron-builder | findstr /C:'electron-builder' > nul && (echo Installing electron-builder... && npm install electron-builder --save-dev)"
+start /wait cmd /c "npm run build"
+cd dist
+explorer .
