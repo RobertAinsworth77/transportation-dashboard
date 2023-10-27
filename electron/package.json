@@ -9,11 +9,13 @@
   "private": true,
   "homepage": "/",
   "devDependencies": {
-    "electron": "^24.3.0"
+    "electron": "^24.8.8",
+    "electron-builder": "^24.6.4"
   },
   "scripts": {
     "start": "set ELECTRON_IS_DEV=0 && electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "export": "./mac-exporter.sh"
   },
   "dependencies": {
     "react": "^18.2.0",
