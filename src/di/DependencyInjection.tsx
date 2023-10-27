@@ -22,11 +22,8 @@ import GetDriverByIdUseCase from "../domain/use_cases/driver/GetDriverByIdUseCas
 import GetFiltredDriversUseCase from "../domain/use_cases/driver/GetFiltredDriverUseCase";
 import SearchDriversByNameUseCase from "../domain/use_cases/driver/SearchDriversByNameUseCase";
 import UpdateDriverUseCase from "../domain/use_cases/driver/UpdateDriverUseCase";
-import CreateEmployeeUseCase from "../domain/use_cases/employee/CreateEmployeeUseCase";
-import DeleteEmployeeUseCase from "../domain/use_cases/employee/DeleteEmployeeUseCase";
-import GetEmployeeByIdUseCase from "../domain/use_cases/employee/GetEmployeeByIdUseCase";
-import GetFiltredEmployeesUseCase from "../domain/use_cases/employee/GetFiltredEmployeesUseCase";
-import UpdateEmployeeUseCase from "../domain/use_cases/employee/UpdateEmployeeUseCase";
+import GetEmployeeByEmailUseCase from "../domain/use_cases/employee/GetEmployeeByEmailUseCase";
+import GetEmployeesByHrmUseCase from "../domain/use_cases/employee/GetEmployeesByHrmUseCase";
 import CreateRouteUseCase from "../domain/use_cases/route/CreateRouteUseCase";
 import DeleteRouteUseCase from "../domain/use_cases/route/DeleteRouteUseCase";
 import GetFiltredRoutesUseCase from "../domain/use_cases/route/GetFiltredRoutesUseCase";
@@ -89,11 +86,8 @@ interface DIUseCases {
     searchDriversByNameUseCase: SearchDriversByNameUseCase,
     updateDriverUseCase: UpdateDriverUseCase,
 
-    createEmployeeUseCase: CreateEmployeeUseCase,
-    deleteEmployeeUseCase: DeleteEmployeeUseCase,
-    getEmployeeByIdUseCase: GetEmployeeByIdUseCase,
-    getFiltredEmployeesUseCase: GetFiltredEmployeesUseCase,
-    updateEmployeeUseCase: UpdateEmployeeUseCase,
+    getEmployeeByEmailUseCase: GetEmployeeByEmailUseCase,
+    getEmployeesByHrmUseCase: GetEmployeesByHrmUseCase,
 
     createRouteUseCase: CreateRouteUseCase,
     deleteRouteUseCase: DeleteRouteUseCase,
@@ -164,11 +158,8 @@ const getFiltredDriversUseCase = new GetFiltredDriversUseCase({ driverRepository
 const searchDriversByNameUseCase = new SearchDriversByNameUseCase({ driverRepository: repositories.driverRepository });
 const updateDriverUseCase = new UpdateDriverUseCase({ driverRepository: repositories.driverRepository });
 
-const createEmployeeUseCase = new CreateEmployeeUseCase({ employeeRepository: repositories.employeeRepository });
-const deleteEmployeeUseCase = new DeleteEmployeeUseCase({ employeeRepository: repositories.employeeRepository });
-const getEmployeeByIdUseCase = new GetEmployeeByIdUseCase({ employeeRepository: repositories.employeeRepository });
-const getFiltredEmployeesUseCase = new GetFiltredEmployeesUseCase({ employeeRepository: repositories.employeeRepository });
-const updateEmployeeUseCase = new UpdateEmployeeUseCase({ employeeRepository: repositories.employeeRepository });
+const getEmployeeByEmailUseCase = new GetEmployeeByEmailUseCase({ employeeRepository: repositories.employeeRepository });
+const getEmployeesByHrmUseCase = new GetEmployeesByHrmUseCase({ employeeRepository: repositories.employeeRepository });
 
 const createRouteUseCase = new CreateRouteUseCase({ routeRepository: repositories.routeRepository });
 const deleteRouteUseCase = new DeleteRouteUseCase({ routeRepository: repositories.routeRepository });
@@ -237,11 +228,8 @@ const useCases: DIUseCases = {
     searchDriversByNameUseCase: searchDriversByNameUseCase,
     updateDriverUseCase: updateDriverUseCase,
 
-    createEmployeeUseCase: createEmployeeUseCase,
-    deleteEmployeeUseCase: deleteEmployeeUseCase,
-    getEmployeeByIdUseCase: getEmployeeByIdUseCase,
-    getFiltredEmployeesUseCase: getFiltredEmployeesUseCase,
-    updateEmployeeUseCase: updateEmployeeUseCase,
+    getEmployeeByEmailUseCase: getEmployeeByEmailUseCase,
+    getEmployeesByHrmUseCase: getEmployeesByHrmUseCase,
 
     createRouteUseCase: createRouteUseCase,
     deleteRouteUseCase: deleteRouteUseCase,

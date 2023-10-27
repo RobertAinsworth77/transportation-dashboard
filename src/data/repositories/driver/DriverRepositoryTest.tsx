@@ -17,6 +17,10 @@ const DriverRepositoryTest: DriverRepository = {
             total_pages: 20,
             current_page: 10,
             total_rows: 3,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             drivers: [
                 {
                     id: 1,
@@ -73,7 +77,7 @@ const DriverRepositoryTest: DriverRepository = {
                     year: 2022,
                     model: 'Coaster',
                     brand: 'BMS',
-            }
+                }
             },
             {
                 id: 2,
@@ -91,7 +95,7 @@ const DriverRepositoryTest: DriverRepository = {
                     year: 2022,
                     model: 'Coaster',
                     brand: 'BMS',
-            }
+                }
             },
             {
                 id: 3,

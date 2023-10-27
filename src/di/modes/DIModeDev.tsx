@@ -26,6 +26,7 @@ import TripRepositoryImpl from "../../data/repositories/trip/TripRepositoryImpl"
 import BusRepositoryImpl from "../../data/repositories/bus/BusRepositoryImpl";
 import AlertRepositoryImpl from "../../data/repositories/alert/AlertRepositoryImpl";
 import UpdateAppRepositoryImpl from "../../data/repositories/updateApp/UpdateAppRepositoryImpl";
+import EmployeeRepositoryImpl from "../../data/repositories/employee/EmployeeRepositoryImpl";
 
 const DIModeDev: DependencyInjectionMode = {
     repositories: {
@@ -34,7 +35,7 @@ const DIModeDev: DependencyInjectionMode = {
         busRepository: BusRepositoryImpl,
         defaultRepository: DefaultRepositoryImpl,
         driverRepository: DriverRepositoryImpl,
-        employeeRepository: EmployeeRepositoryTest,
+        employeeRepository: EmployeeRepositoryImpl,
         routeRepository: RouteRepositoryImpl,
         tripRepository: TripRepositoryImpl,
         siteRepository: SiteRepositoryImpl,

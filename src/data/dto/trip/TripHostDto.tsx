@@ -13,7 +13,7 @@ const toJson = (trip: TripEntity): any => {
         date_end: trip.end_date ?  DateParse.formatDate(trip.end_date) : undefined,
         status: trip.state == TripState.inProgress
             ? 'in progress'
-            : trip.state == TripState.ended
+            : trip.state == TripState.completed
                 ? 'completed'
                 : trip.state == TripState.pending
                     ? 'pending'
@@ -42,7 +42,7 @@ const fromJson = (json: any): TripEntity => {
         state: json.status == 'progress' || json.status?.toLowerCase() == 'in progress'
         ? TripState.inProgress
         : json.status == 'completed'
-            ? TripState.ended
+            ? TripState.completed
             : json.status == 'pending'
                 ? TripState.pending
                 : TripState.pending,
@@ -62,9 +62,59 @@ const fromJson = (json: any): TripEntity => {
     }
 }
 
+const toDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'date_begin':
+            return 'date_begin';
+        case 'date_end':
+            return 'date_end';
+        case 'status':
+            return 'status';
+        case 'driver_id':
+            return 'driver_id';
+        case 'vehicle_id':
+            return 'vehicle_id';
+        case 'route_id':
+            return 'route_id';
+        case 'passengers_count':
+            return 'passengers_count';
+        case 'reserves_pending_count':
+            return 'reserves_pending_count';
+        default:
+            return 'trip_id';
+    }
+}
+
+const fromDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'date_begin':
+            return 'start_date';
+        case 'date_end':
+            return 'end_date';
+        case 'status':
+            return 'state';
+        case 'driver_id':
+            return 'driver_id';
+        case 'vehicle_id':
+            return 'bus_id';
+        case 'route_id':
+            return 'route_id';
+        case 'passengers_count':
+            return 'passengers_count';
+        case 'reserves_pending_count':
+            return 'bookings_pending_count';
+        case 'trip_id':
+            return 'id';
+        default:
+            return 'id';
+    }
+}
+
 const TripHostDto = {
     toJson,
     fromJson,
+    toDBColumName,
+    fromDBColumName,
 }
 
 export default TripHostDto;

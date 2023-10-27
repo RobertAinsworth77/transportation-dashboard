@@ -1,20 +1,29 @@
 import EmployeeEntity from "../../../domain/entities/EmployeeEntity";
+<<<<<<< HEAD
+=======
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
+>>>>>>> test
 import TripEntity, { TripState } from "../../../domain/entities/TripEntity";
 import TripRepository, { GetFiltredResponse } from "../../../domain/repositories/TripRepository";
 import BusHostDto from "../../dto/bus/BusHostDto";
 import DriverHostDto from "../../dto/driver/DriverHostDto";
 import EmployeeHostDto from "../../dto/employee/EmployeeHostDto";
+<<<<<<< HEAD
+=======
+import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
+>>>>>>> test
 import RouteHostDto from "../../dto/route/RouteHostDto";
 import SiteHostDto from "../../dto/site/SiteHostDto";
 import TripHostDto from "../../dto/trip/TripHostDto";
 import HostApi from "../../settings/host/HostApi";
 
 const TripRepositoryImpl: TripRepository = {
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
         const response = await HostApi.post('/admin_get_trips', {
             "items_per_page": itemsPerPage,
             "page": page,
-            "search_word": word
+            "search_word": word,
+            ...OrderByHostDto.toJson(orderBy, TripHostDto.toDBColumName)
         });
         const responseParsed = response.data.map((trip: any) => {
             const tripTemp = {
@@ -31,16 +40,21 @@ const TripRepositoryImpl: TripRepository = {
             current_page: page,
             total_rows: response.total_rows,
             trips: responseParsed,
+            orderBy: OrderByHostDto.fromJson(response.order_by, TripHostDto.fromDBColumName)
         });
     }),
     getById: (id: number): Promise<TripEntity> => new Promise<TripEntity>(async (resolve, reject) => {
         try {
             const responseText = await HostApi.get(`/dashboard/trips?id=${id}`);
             const replaced = responseText.replace(/'/g, '"').replace(/\\xa0/g, '\\n');
+<<<<<<< HEAD
             console.log('269', replaced.substring(190, replaced.length - 1));
             console.log('responsetext', replaced);
             const response = JSON.parse(replaced);
             console.log('response', response);
+=======
+            const response = JSON.parse(replaced);
+>>>>>>> test
             const driver = DriverHostDto.fromJson(response);
             const bus = BusHostDto.fromJson(response);
             const route = RouteHostDto.fromJson(response);

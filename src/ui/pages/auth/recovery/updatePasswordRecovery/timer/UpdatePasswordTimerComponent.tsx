@@ -6,7 +6,7 @@ import KeyWordLocalization from "../../../../../../domain/providers/language/dic
 import LanguageContext from "../../../../../../domain/providers/language/LanguageContext";
 import LanguageContextType from "../../../../../../domain/providers/language/LanguageContextType";
 
-const _defaultTimer = 5;
+const _defaultTimer = 60;
 var interval: any = null;
 const UpdatePasswordTimerComponent: React.FC<UpdatePasswordTimerComponentProps> = ({email}) => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;

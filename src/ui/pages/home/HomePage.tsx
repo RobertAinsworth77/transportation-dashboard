@@ -20,6 +20,7 @@ import { UserEntityRole } from '../../../domain/entities/UserEntity';
 import UserContext from '../../../domain/providers/user/UserContext';
 import UserContextType from '../../../domain/providers/user/UserContextType';
 import AddBusModalComponent from '../busses/components/add/AddBusModalComponent';
+import ActionsLineComponent from '../../components/actionsLine/ActionsLineComponent';
 
 const HomePage: FC<HomePageProps> = () => {
 
@@ -71,15 +72,16 @@ const HomePage: FC<HomePageProps> = () => {
           <CardCounterComponent title={i18n(KeyWordLocalization.HomePageBussesModule)} counter={countersTrips?.busses_count ?? 0} add={_handleAddBus} seeAllUrl={routes.busses.relativePath} />
         </div>
         <div className="col-12 col-lg-4 my-3">
-          <CardCounterComponent title={i18n(KeyWordLocalization.HomePageSitesModule)} counter={countersTrips?.sites_count ?? 0} add={_handleAddSite} seeAllUrl={routes.drivers.relativePath} />
+          <CardCounterComponent title={i18n(KeyWordLocalization.HomePageSitesModule)} counter={countersTrips?.sites_count ?? 0} add={_handleAddSite} seeAllUrl={routes.sites.relativePath} />
         </div>
         <div className="col-12 col-lg-4 my-3">
-          <CardCounterComponent title={i18n(KeyWordLocalization.HomePageTripsModule)} counter={countersTrips?.trips_count ?? 0} add={_handleAddTrip} seeAllUrl={routes.users.relativePath} />
+          <CardCounterComponent title={i18n(KeyWordLocalization.HomePageTripsModule)} counter={countersTrips?.trips_count ?? 0} add={_handleAddTrip} seeAllUrl={routes.trips.relativePath} />
         </div>
         <div className="col-12 col-lg-4 my-3">
           <CardCounterComponent title={i18n(KeyWordLocalization.HomePageRoutesModule)} counter={countersTrips?.routes_count ?? 0} add={_handleAddRoute} seeAllUrl={routes.routes.relativePath} />
         </div>
       </div>
+      <ActionsLineComponent />
     </div>
   </div>
 }

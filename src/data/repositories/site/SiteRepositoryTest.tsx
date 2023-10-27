@@ -41,6 +41,10 @@ const SiteRepositoryTest: SiteRepository = {
             total_pages: 20,
             current_page: 10,
             total_rows: 3,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             sites: [
                 {
                     id: 1,

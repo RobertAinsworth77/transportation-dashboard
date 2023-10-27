@@ -22,9 +22,49 @@ const fromJson = (json: any): UserEntity => {
     }
 }
 
+const toDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'name';
+        case 'phone':
+            return 'phone_number';
+        case 'email':
+            return 'email';
+        case 'role':
+            return 'role';
+        case 'status':
+            return 'status';
+        case 'id':
+            return 'user_id';
+        default:
+            return 'user_id';
+    }
+}
+
+const fromDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'name';
+        case 'phone_number':
+            return 'phone';
+        case 'email':
+            return 'email';
+        case 'role':
+            return 'role';
+        case 'status':
+            return 'status';
+        case 'user_id':
+            return 'id';
+        default:
+            return 'id';
+    }
+}
+
 const UserHostDto = {
     toJson,
     fromJson,
+    toDBColumName,
+    fromDBColumName,
 }
 
 export default UserHostDto;

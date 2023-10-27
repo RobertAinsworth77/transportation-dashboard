@@ -1,3 +1,4 @@
+import { OrdeByFilterEntity } from "../../entities/OrdeByFilterEntity";
 import TripEntity from "../../entities/TripEntity";
 import TripRepository from "../../repositories/TripRepository";
 
@@ -6,7 +7,8 @@ export interface response {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    trips: TripEntity[]
+    trips: TripEntity[],
+    orderBy: OrdeByFilterEntity | undefined,
 }
 export default class GetFiltredTripsUseCase {
     _tripRepository: TripRepository;
@@ -15,9 +17,9 @@ export default class GetFiltredTripsUseCase {
         this._tripRepository = _.tripRepository;
     }
 
-    public call = async (word: string, page: number, itemsPerPage: number) => new Promise<response>(async (resolve, reject) => {
+    public call = async (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => new Promise<response>(async (resolve, reject) => {
         try {
-            const response = await this._tripRepository.getFiltred(word, page, itemsPerPage);
+            const response = await this._tripRepository.getFiltred(word, page, itemsPerPage, orderBy);
             return resolve(response);
         } catch (_) {
             return reject();

@@ -12,7 +12,8 @@ export default class UpdatePasswordRecoveryUseCase {
         try {
             const as = await this._authRepository.updatePasswordByRecovery(email, password, code);
             resolve();
-        } catch (_) {
+        } catch (_: any) {
+            console.log('error code', _,);
             reject(_);
         }
     });

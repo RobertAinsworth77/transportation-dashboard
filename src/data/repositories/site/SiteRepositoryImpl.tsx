@@ -1,5 +1,7 @@
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 import SiteEntity from "../../../domain/entities/SiteEntity";
 import SiteRepository, { GetFiltredResponse } from "../../../domain/repositories/SiteRepository";
+import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
 import SiteHostDto from "../../dto/site/SiteHostDto";
 import HostApi from "../../settings/host/HostApi";
 
@@ -9,7 +11,7 @@ const SiteRepositoryImpl: SiteRepository = {
         const responseParsedDto = response.map((site: any) => SiteHostDto.fromJson(site)).filter((site: SiteEntity) => site.name.includes(word));
         resolve(responseParsedDto);
     }),
-    getCountries: (): Promise<string[]> => new Promise<string[]>( async (resolve, reject) => {
+    getCountries: (): Promise<string[]> => new Promise<string[]>(async (resolve, reject) => {
         try {
             const response = await HostApi.post('/employee_get_countries', {});
             resolve(response.data.map((country: any) => country.country));
@@ -26,17 +28,24 @@ const SiteRepositoryImpl: SiteRepository = {
             reject(error);
         }
     }),
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+        const body = {
+            "items_per_page": itemsPerPage,
+            "page": page,
+            "search_word": word,
+            ...OrderByHostDto.toJson(orderBy, SiteHostDto.toDBColumName)
+        }
         const response = await HostApi.get('/admin_get_sites');
         const responseParsedDto = response.filter((site: any) => JSON.stringify(site).includes(word)).map((site: any) => SiteHostDto.fromJson(site));
         resolve({
             total_pages: 1,
             current_page: 1,
             total_rows: responseParsedDto.length,
-            sites: responseParsedDto
+            sites: responseParsedDto,
+            orderBy: OrderByHostDto.fromJson(response.order_by, SiteHostDto.fromDBColumName)
         });
     }),
-    delete: (id: number): Promise<void> => new Promise<void>( async (resolve, reject) => {
+    delete: (id: number): Promise<void> => new Promise<void>(async (resolve, reject) => {
         try {
             await HostApi.post('/dashboard/sites/delete', { site_id: id });
             resolve();

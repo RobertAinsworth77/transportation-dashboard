@@ -10,7 +10,21 @@
     "AddRoutePageName": "Agregar ruta",
     "SitesPageName": "Sedes",
     "AddTripPageName": "Agregar Viaje",
+
+    "----------------------Modals-----------------":"",
+    "ModalSearchEmployeeDescription": "Busca si un empleado existe usando su correo electrónico",
+    "ModalSearchEmployeePlaceholder": "Correo electrónico",
+    "ModalSearchEmployeeUserNotFound": "Empleado no encontrado",
+    "ModalSearchEmployeeUserFound": "El empleado {name} con HRM #{id} fue encontrado",
     
+    "ModalSearchMultipleEmployeeDescription": "Busca si los empleados existen por medio de su HRM id, separa con coma para buscar varios",
+    "ModalSearchMultipleEmployeePlaceholder": "HRM ids",
+    "ModalSearchMultipleEmployeeExample": "Por ejemplo busca 1111, 2222, 3333",
+    "ModalSearchMultipleEmployeeUserNotFound": "El empleado con HRM #{hrm} no fue encontrado",
+    "ModalSearchMultipleEmployeeUserFound": "El empleado {name} identificado con HRM #{hrm} fue encontrado y su correo electrónico es {email}",
+    "ModalSearchMultipleEmployeeErrorPattern": "Debes ingresar los HRM ids separados por coma",
+    "ModalSearchMultipleEmployeeError": "Error buscando empleados",
+
     "----------------------General-----------------":"",
     "UnknownError": "Error desconocido",
     "Search": "Buscar",
@@ -53,6 +67,11 @@
 
     "----------------------Errors-----------------":"",
     "LimitExceededException": "Límite de intentos excedido, intente más tarde",
+    "NetworkingError": "Error de red, verifique su conexión a internet",
+    "ExpiredCodeException": "Código expirado, por favor solicite uno nuevo",
+    "InvalidPasswordException": "Contraseña inválida",
+    "CodeMismatchException": "Código inválido",
+    "UsernameExistsException": "El correo electrónico ya está registrado",
  
     "----------------------Entities-----------------":"",
     "DriverEntityName": "Nombre",
@@ -115,6 +134,12 @@
     "HomePageSitesModule": "Sedes",
     "HomePageTripsModule": "Viajes",
     "HomePageRoutesModule": "Rutas",
+
+    "ActionLineComponentActions": "Funciones adicionales",
+    "ActionLineComponentCheckEmail": "Verificar empleado por correo electrónico",
+    "ActionLineComponentCheckMultipleByHRM": "Verificar empleados por HRM ID",
+    "ActionLineComponentCheckEmailModelTitle": "Verificar empleado por correo electrónico",
+    "ActionLineComponentCheckMultiplebyHRMModelTitle": "Verificar empleados por HRM ID",
 
     "UsersHomePageName": "Personas",
     "UsersPageName": "Usuarios",
@@ -230,6 +255,10 @@
     "ShowUpdateComponentUpdate": "Descargar ahora",
     "ShowUpdateComponentDownloadNow": "Descargar ahora",
     "ShowUpdateComponentRemindMeLater": "Recuerdamé más tarde",
+
+    "TableComponentResults": "Resultados: {results}",
+    "TableComponentShowing": "Mostando",
+    "TableComponentItemsPage": "Filas, Página",
 
     "----------------------Server-----------------":"",
     "EmergencyOptionAmbulance": "Ambulancia",

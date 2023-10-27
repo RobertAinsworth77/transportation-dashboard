@@ -8,6 +8,10 @@ const TripRepositoryTest: TripRepository = {
             total_pages: 12,
             current_page: 2,
             total_rows: 3,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             trips: [
                 {
                     id: 1,

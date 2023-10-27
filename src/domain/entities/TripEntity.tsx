@@ -8,7 +8,7 @@ export enum TripState {
     pending = 'pending',
     inProgress = 'in progress',
     canceled = 'canceled',
-    ended = 'ended'
+    completed = 'completed'
 }
 
 export default interface TripEntity {

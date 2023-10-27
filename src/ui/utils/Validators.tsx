@@ -23,7 +23,10 @@ interface props {
     name?: boolean | undefined,
     phone?: boolean | undefined,
     isPassword?: boolean | undefined,
-    pattern?: RegExp | undefined,
+    pattern?: {
+        pattern: RegExp,
+        message: string
+    } | undefined,
     validate?: Function | undefined
     onChange?: Function | undefined
 }
@@ -67,7 +70,7 @@ const Validators = (_: props): any => {
         validator = {
             ...validator, min: {
                 value: minValue,
-                message: i18n(KeyWordLocalization.ValidatorMinValue, { minValue: minValue })
+                message: i18n(KeyWordLocalization.ValidatorMinValue, { min: minValue })
             }
         };
     }
@@ -76,7 +79,7 @@ const Validators = (_: props): any => {
         validator = {
             ...validator, max: {
                 value: maxValue,
-                message: i18n(KeyWordLocalization.ValidatorMaxValue, { maxValue: maxValue })
+                message: i18n(KeyWordLocalization.ValidatorMaxValue, { max: maxValue })
             }
         };
     }
@@ -190,7 +193,10 @@ const Validators = (_: props): any => {
     }
 
     if (pattern) {
-        validator = { ...validator, pattern: pattern };
+        validator = { ...validator, pattern: {
+            value: pattern.pattern,
+            message: pattern.message,
+        } };
     }
 
     if (validate) {

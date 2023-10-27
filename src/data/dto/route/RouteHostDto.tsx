@@ -28,9 +28,51 @@ const fromJson = (json: any): RouteEntity => {
     }
 }
 
+const toDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'route_name';
+        case 'description':
+            return 'route_description';
+        case 'enabled':
+            return 'enabled';
+        case 'start_point':
+            return 'start_point';
+        case 'end_point':
+            return 'end_point_point';
+        case 'site':
+            return 'site_id';
+        default:
+            return 'route_id';
+    }
+}
+
+const fromDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'route_name':
+            return 'name';
+        case 'route_description':
+            return 'description';
+        case 'enabled':
+            return 'enabled';
+        case 'start_point':
+            return 'start_point';
+        case 'end_point_point':
+            return 'end_point';
+        case 'site_id':
+            return 'site';
+        case 'route_id':
+            return 'id';
+        default:
+            return 'id';
+    }
+}
+
 const RouteHostDto = {
     toJson,
     fromJson,
+    toDBColumName,
+    fromDBColumName,
 }
 
 export default RouteHostDto;

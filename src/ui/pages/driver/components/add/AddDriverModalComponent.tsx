@@ -10,12 +10,11 @@ import AddDriverModalComponentProps from './AddDriverModalComponentProps';
 import { useForm } from 'react-hook-form';
 import Validators from '../../../../utils/Validators';
 import { ErrorMessage } from '@hookform/error-message';
-import BusEntity from '../../../../../domain/entities/BusEntity';
-import AutoCompleteComponent from '../../../../components/form/autocomplete/AutoCompleteComponent';
 import ModalsContext from '../../../../../domain/providers/modal/ModalsContext';
 import ModalsContextType from '../../../../../domain/providers/modal/ModalsContextType';
 import PhoneInput from 'react-phone-input-2';
 import { COUNTRIES_CODE } from '../../../../utils/Constants';
+import { MdVisibility, MdVisibilityOff } from 'react-icons/md';
 
 const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, done }) => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -23,10 +22,11 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
   const { closeModalCustom, addToast } = useContext(ModalsContext) as ModalsContextType;
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm();
 
-  const [busses, setBusses] = useState<BusEntity[]>([]);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const _handleEdit = async (data: any) => {
-    data.enabled = data.enabled == "true";
+    console.log('data getted', data);
+    data.enabled = data.enabled == "true" || data.enabled == true;
     const tempUser: DriverEntity = {
       ...data,
       id: driver?.id,
@@ -66,6 +66,10 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
     });
   }
 
+  const _handleTogglePasswordVisibility = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   // const searchBusses = async (plate: string) => {
   //   const response = await di.useCases.searchBusesByNameUseCase.call(plate);
   //   setBusses(response);
@@ -81,7 +85,7 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
         <div className={`col-12 col-lg-6 my-2 form-group ${errors.name ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.DriverEntityName)}</label>
           <input type="text" className="form-control" placeholder={i18n(KeyWordLocalization.DriverEntityName)}
-            {...register('name', Validators({ required: true, name:true, minLength: 2 }))} />
+            {...register('name', Validators({ required: true, name: true, minLength: 2 }))} />
           <ErrorMessage as="aside" errors={errors} name="name" />
         </div>
         <div className={`col-12 col-lg-6 my-2 form-group ${errors.email ? 'error' : ''}`}>
@@ -95,7 +99,7 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
           <label>{i18n(KeyWordLocalization.DriverEntityEnabled)}</label>
           <select className="form-control"
             {...register('enabled', Validators({ required: true }))} >
-            <option value="">{i18n(KeyWordLocalization.DriverEntityEnabled)}</option>
+            <option value="" disabled>{i18n(KeyWordLocalization.DriverEntityEnabled)}</option>
             <option value="true">{i18n(KeyWordLocalization.Yes)}</option>
             <option value="false">{i18n(KeyWordLocalization.No)}</option>
           </select>
@@ -116,20 +120,30 @@ const AddDriverModalComponent: FC<AddDriverModalComponentProps> = ({ driver, don
 
         {driver == undefined && < div className={`col-12 col-lg-6 my-2 form-group ${errors.password ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.Password)}</label>
-          <input type="password" {...register("password", Validators({ required: true, minLength: 6 }))}
-            className={`form-control ${errors.password ? 'error' : ''}`} placeholder={i18n(KeyWordLocalization.Password)} />
+          <div className="password_input_wrapper">
+            <input type={showPassword ? 'text': 'password'}    {...register("password", Validators({ required: true, minLength: 6 }))}
+              className={`form-control ${errors.password ? 'error' : ''}`} placeholder={i18n(KeyWordLocalization.Password)} />
+            <div className='visibility_icon' onClick={_handleTogglePasswordVisibility}>
+              {showPassword ? <MdVisibility /> : <MdVisibilityOff />}
+            </div>
+          </div>
           <ErrorMessage as="aside" errors={errors} name="password" />
         </div>}
 
         {driver == undefined && < div className={`col-12 col-lg-6 my-2 form-group ${errors.confirm_password ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.PasswordConfirm)}</label>
-          <input type="password" {...register("confirm_password", Validators({
-            required: true, minLength: 6, validate: (val: string) => {
-              if (watch('password') != val) {
-                return i18n(KeyWordLocalization.PasswordsNotMatch);
-              }
-            },
-          }))} className="form-control" placeholder={i18n(KeyWordLocalization.PasswordConfirm)} />
+          <div className="password_input_wrapper">
+            <input type={showPassword ? 'text': 'password'} {...register("confirm_password", Validators({
+              required: true, minLength: 6, validate: (val: string) => {
+                if (watch('password') != val) {
+                  return i18n(KeyWordLocalization.PasswordsNotMatch);
+                }
+              },
+            }))} className="form-control" placeholder={i18n(KeyWordLocalization.PasswordConfirm)} />
+            <div className='visibility_icon' onClick={_handleTogglePasswordVisibility}>
+              {showPassword ? <MdVisibility /> : <MdVisibilityOff />}
+            </div>
+          </div>
           <ErrorMessage as="aside" errors={errors} name="confirm_password" />
         </div>}
         {/* <div className="col-12 col-lg-6">

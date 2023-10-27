@@ -12,13 +12,17 @@ const BusRepositoryTest: BusRepository = {
             year: 2022,
             model: 'Coaster',
             brand: 'BMS',
-});
+        });
     }),
     getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>((resolve, reject) => {
         resolve({
             total_pages: 20,
             current_page: 10,
             total_rows: 3,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             busses: [
                 {
                     id: 1,
@@ -29,7 +33,7 @@ const BusRepositoryTest: BusRepository = {
                     year: 2022,
                     model: 'Coaster',
                     brand: 'BMS',
-            },
+                },
                 {
                     id: 2,
                     plate: 'MKJ-122',
@@ -39,7 +43,7 @@ const BusRepositoryTest: BusRepository = {
                     year: 2022,
                     model: 'Coaster',
                     brand: 'BMS',
-            },
+                },
                 {
                     id: 3,
                     plate: 'MKJ-123',
@@ -49,7 +53,7 @@ const BusRepositoryTest: BusRepository = {
                     year: 2022,
                     model: 'Coaster',
                     brand: 'BMS',
-            },
+                },
             ]
         });
     }),

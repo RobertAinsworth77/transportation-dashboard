@@ -14,6 +14,7 @@ import AddSiteModalComponent from './components/add/AddSiteModalComponent';
 import DeleteSiteModalComponent from './components/delete/DeleteSiteModalComponent';
 import './SitesPage.scss';
 import SitesPageProps from './SitesPageProps';
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 
 const SitesPage: FC<SitesPageProps> = () => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -26,39 +27,46 @@ const SitesPage: FC<SitesPageProps> = () => {
   const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
   const [searchWord, setSearchWord] = useState<string>('');
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-  const _searchSites = async (word: string, page: number, itemsPerPageR: number) => {
+  const _searchSites = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
     setCurrentPage(page);
     setSites(undefined);
     setTotalResults(undefined);
     setSearchWord(word);
     setItemsPerPage(itemsPerPageR);
-    const response: GetFiltredSitesUseCase.response = await di.useCases.getFiltredSitesUseCase?.call(word, currentPage, itemsPerPageR);
-    setSites(response.sites);
-    setCurrentPage(response.current_page);
-    setTotalPages(response.total_pages);
-    setTotalResults(response.total_rows);
+    setOrderBy(_orderBy);
+    try {
+      const response: GetFiltredSitesUseCase.response = await di.useCases.getFiltredSitesUseCase?.call(word, currentPage, itemsPerPageR, _orderBy);
+      setSites(response.sites);
+      setCurrentPage(response.current_page);
+      setTotalPages(response.total_pages);
+      setTotalResults(response.total_rows);        
+      setOrderBy(response.orderBy);
+    } catch (error) {
+      setSites([]);
+    }
   }
 
   const _handleEdit = async (site: SiteEntity) => {
-    openModalCustom('lg', i18n(KeyWordLocalization.SitesPageEditSite), <AddSiteModalComponent site={site} done={() => _searchSites(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.SitesPageEditSite), <AddSiteModalComponent site={site} done={() => _searchSites(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   const _handleDelete = async (site: SiteEntity) => {
     const deleteSite = async () => {
       await di.useCases.deleteSiteUseCase.call(site.id);
-      _searchSites(searchWord, currentPage, itemsPerPage)
+      _searchSites(searchWord, currentPage, itemsPerPage, orderBy)
     }
 
     openModalCustom('sm', i18n(KeyWordLocalization.SitesPageDeleteSite), <DeleteSiteModalComponent done={() => deleteSite()} />)
   }
 
   const _handleAdd = async () => {
-    openModalCustom('lg', i18n(KeyWordLocalization.SitesPageAddSite), <AddSiteModalComponent done={() => _searchSites(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.SitesPageAddSite), <AddSiteModalComponent done={() => _searchSites(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   useEffect(() => {
-    _searchSites(searchWord, currentPage, itemsPerPage);
+    _searchSites(searchWord, currentPage, itemsPerPage, orderBy);
   }, []);
 
   return <div className="sites_page bg_1 p-5">

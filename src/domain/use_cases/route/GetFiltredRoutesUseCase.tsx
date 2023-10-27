@@ -1,3 +1,4 @@
+import { OrdeByFilterEntity } from "../../entities/OrdeByFilterEntity";
 import RouteEntity from "../../entities/RouteEntity";
 import RouteRepository from "../../repositories/RouteRepository";
 
@@ -6,7 +7,8 @@ export interface response {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    routes: RouteEntity[]
+    routes: RouteEntity[],
+    orderBy: OrdeByFilterEntity | undefined,
 }
 export default class GetFiltredRoutesUseCase {
     _routeRepository: RouteRepository;
@@ -15,9 +17,9 @@ export default class GetFiltredRoutesUseCase {
         this._routeRepository = _.routeRepository;
     }
 
-    public call = async (word: string, page: number, itemsPerPage: number) => new Promise<response>(async (resolve, reject) => {
+    public call = async (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => new Promise<response>(async (resolve, reject) => {
         try {
-            const response = await this._routeRepository.getFiltred(word, page, itemsPerPage);
+            const response = await this._routeRepository.getFiltred(word, page, itemsPerPage, orderBy);
             return resolve(response);
         } catch (_) {
             return reject();

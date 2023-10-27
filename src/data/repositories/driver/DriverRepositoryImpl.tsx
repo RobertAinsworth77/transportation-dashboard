@@ -1,6 +1,8 @@
 import DriverEntity from "../../../domain/entities/DriverEntity";
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 import DriverRepository, { GetFiltredResponse } from "../../../domain/repositories/DriverRepository";
 import DriverHostDto from "../../dto/driver/DriverHostDto";
+import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
 import HostApi from "../../settings/host/HostApi";
 
 const DriverRepositoryImpl: DriverRepository = {
@@ -15,11 +17,12 @@ const DriverRepositoryImpl: DriverRepository = {
             country: 'country',
         });
     }),
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
         const body = {
             "items_per_page": itemsPerPage,
             "page": page,
-            "search_word": word
+            "search_word": word,
+            ...OrderByHostDto.toJson(orderBy, DriverHostDto.toDBColumName)
         }
         try {
             const response = await HostApi.post('/dashboard/users/drivers', body);
@@ -28,7 +31,8 @@ const DriverRepositoryImpl: DriverRepository = {
                 total_pages: response.total_pages,
                 current_page: page,
                 total_rows: response.total_rows,
-                drivers: driversMapped
+                drivers: driversMapped,
+                orderBy: OrderByHostDto.fromJson(response.order_by, DriverHostDto.fromDBColumName)
             }
             return resolve(responseMapped);
         } catch (error) {

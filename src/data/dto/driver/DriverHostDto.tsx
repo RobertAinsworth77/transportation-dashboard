@@ -26,9 +26,57 @@ const fromJson = (json: any): DriverEntity => {
     }
 }
 
+const toDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'name';
+        case 'last_name':
+            return 'last_name';
+        case 'phone':
+            return 'cell_phone';
+        case 'email':
+            return 'email';
+        case 'country':
+            return 'country';
+        case 'defaultBus':
+            return 'default_bus_id';
+        case 'enabled':
+            return 'status';
+        case 'id':
+            return 'driver_id';
+        default:
+            return 'driver_id';
+    }
+}
+
+const fromDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'name';
+        case 'last_name':
+            return 'last_name';
+        case 'cell_phone':
+            return 'phone';
+        case 'email':
+            return 'email';
+        case 'country':
+            return 'country';
+        case 'default_bus_id':
+            return 'defaultBus';
+        case 'status':
+            return 'enabled';
+        case 'driver_id':
+            return 'id';
+        default:
+            return 'id';
+    }
+}
+
 const DriverHostDto = {
     toJson,
     fromJson,
+    toDBColumName,
+    fromDBColumName,
 }
 
 export default DriverHostDto;

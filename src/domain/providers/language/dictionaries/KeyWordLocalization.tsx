@@ -11,6 +11,20 @@ const KeyWordLocalization = {
     SitesPageName: 'SitesPageName',
     AddTripPageName: 'AddTripPageName',
 
+    // ----------------------Modals---------------------- //
+    ModalSearchEmployeeDescription: 'ModalSearchEmployeeDescription',
+    ModalSearchEmployeePlaceholder: 'ModalSearchEmployeePlaceholder',
+    ModalSearchEmployeeUserNotFound: 'ModalSearchEmployeeUserNotFound',
+    ModalSearchEmployeeUserFound: 'ModalSearchEmployeeUserFound',
+
+    ModalSearchMultipleEmployeeDescription: 'ModalSearchMultipleEmployeeDescription',
+    ModalSearchMultipleEmployeePlaceholder: 'ModalSearchMultipleEmployeePlaceholder',
+    ModalSearchMultipleEmployeeExample: 'ModalSearchMultipleEmployeeExample',
+    ModalSearchMultipleEmployeeUserNotFound: 'ModalSearchMultipleEmployeeUserNotFound',
+    ModalSearchMultipleEmployeeUserFound: 'ModalSearchMultipleEmployeeUserFound',
+    ModalSearchMultipleEmployeeErrorPattern: 'ModalSearchMultipleEmployeeErrorPattern',
+    ModalSearchMultipleEmployeeError: 'ModalSearchMultipleEmployeeError',
+
     // ----------------------General---------------------- //
     UnknownError: 'UnknownError',
     Search: 'Search',
@@ -36,8 +50,8 @@ const KeyWordLocalization = {
     ValidatorEmail: 'ValidatorEmail',
     ValidatorMinLength: 'ValidatorMinLength',
     ValidatorMaxLength: 'ValidatorMaxLength',
-    ValidatorMinValue: 'ValidatorMin',
-    ValidatorMaxValue: 'ValidatorMax',
+    ValidatorMinValue: 'ValidatorMinValue',
+    ValidatorMaxValue: 'ValidatorMaxValue',
     ValidatorMustBeNumber: 'ValidatorMustBeNumber',
     ValidatorSpecialCharactersIsRequired: 'ValidatorSpecialCharactersIsRequired',
     ValidatorUpperCaseIsRequired: 'ValidatorUpperCaseIsRequired',
@@ -53,6 +67,11 @@ const KeyWordLocalization = {
 
     // ----------------------Errors---------------------- //
     LimitExceededException: "LimitExceededException",
+    NetworkingError: "NetworkingError",
+    ExpiredCodeException: "ExpiredCodeException",
+    InvalidPasswordException: "InvalidPasswordException",
+    CodeMismatchException: "CodeMismatchException",
+    UsernameExistsException: "UsernameExistsException",
 
     // ----------------------Entities---------------------- //
     DriverEntityName: 'DriverEntityName',
@@ -115,6 +134,12 @@ const KeyWordLocalization = {
     HomePageSitesModule: 'HomePageSitesModule',
     HomePageTripsModule: 'HomePageTripsModule',
     HomePageRoutesModule: 'HomePageRoutesModule',
+
+    ActionLineComponentActions: 'ActionLineComponentActions',
+    ActionLineComponentCheckEmail: 'ActionLineComponentCheckEmail',
+    ActionLineComponentCheckMultipleByHRM: 'ActionLineComponentCheckMultipleByHRM',
+    ActionLineComponentCheckEmailModelTitle: 'ActionLineComponentCheckEmailModelTitle',
+    ActionLineComponentCheckMultiplebyHRMModelTitle: 'ActionLineComponentCheckMultiplebyHRMModelTitle',
 
     UsersHomePageName: 'UsersHomePageName',
     UsersPageName: 'UsersPageName',
@@ -229,6 +254,10 @@ const KeyWordLocalization = {
     ShowUpdateComponentDescription: 'ShowUpdateComponentDescription',
     ShowUpdateComponentDownloadNow: 'ShowUpdateComponentDownloadNow',
     ShowUpdateComponentRemindMeLater: 'ShowUpdateComponentRemindMeLater',
+
+    TableComponentResults: 'TableComponentResults',
+    TableComponentShowing: 'TableComponentShowing',
+    TableComponentItemsPage: 'TableComponentItemsPage',
 }
 
 export default KeyWordLocalization;

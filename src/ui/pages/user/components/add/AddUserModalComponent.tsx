@@ -87,17 +87,18 @@ const AddUserModalComponent: FC<AddUserModalComponentProps> = ({ userEditing, do
             {...register('email', Validators(userEditing == undefined ? { required: true, email: true } : {}))} />
           <ErrorMessage as="aside" errors={errors} name="email" />
         </div>
-        <div className={`col-12 col-lg-6 my-2 form-group ${errors.role ? 'error' : ''}`}>
+        <input type='hidden' {...register('role')} value={UserEntityRole.admin} />
+        {/* <div className={`col-12 col-lg-6 my-2 form-group ${errors.role ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.UserEntityRole)}</label>
           <select className="form-control" defaultValue={UserEntityRole.admin}
             disabled={user?.role != UserEntityRole.admin}
             {...register('role', Validators({ required: true }))} >
             <option value="">{i18n(KeyWordLocalization.UserEntityRole)}</option>
-            {/* <option value={UserEntityRole.normal}>{UserEntityRole.normal}</option> */}
+            <option value={UserEntityRole.normal}>{UserEntityRole.normal}</option> 
             <option value={UserEntityRole.admin}>{UserEntityRole.admin}</option>
           </select>
           <ErrorMessage as="aside" errors={errors} name="role" />
-        </div>
+        </div> */}
         <div className={`col-12 col-lg-6 my-2 form-group ${errors.phone ? 'error' : ''}`}>
           <label>{i18n(KeyWordLocalization.UserEntityPhone)}</label>
           <PhoneInput

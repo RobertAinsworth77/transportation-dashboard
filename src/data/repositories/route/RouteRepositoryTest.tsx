@@ -55,6 +55,10 @@ const RouteRepositoryTest: RouteRepository = {
             total_pages: 12,
             current_page: 2,
             total_rows: 2,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             routes: [
                 {
                     id: 1,

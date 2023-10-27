@@ -1,3 +1,4 @@
+import { OrdeByFilterEntity } from "../../entities/OrdeByFilterEntity";
 import UserEntity from "../../entities/UserEntity";
 import UserRepository from "../../repositories/UserRepository";
 
@@ -6,7 +7,8 @@ export interface response {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    users: UserEntity[]
+    users: UserEntity[],
+    orderBy: OrdeByFilterEntity | undefined,
 }
 export default class GetFiltredUsersUseCase {
     _userRepository: UserRepository;
@@ -15,9 +17,9 @@ export default class GetFiltredUsersUseCase {
         this._userRepository = _.userRepository;
     }
 
-    public call = async (word: string, page: number, itemsPerPage: number) => new Promise<response>(async (resolve, reject) => {
+    public call = async (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => new Promise<response>(async (resolve, reject) => {
         try {
-            const response = await this._userRepository.getFiltred(word, page, itemsPerPage);
+            const response = await this._userRepository.getFiltred(word, page, itemsPerPage, orderBy);
             console.log('response getfilredusersusecase', response);
             return resolve(response);
         } catch (_) {

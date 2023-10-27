@@ -1,4 +1,6 @@
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 import './Table.scss';
+
 interface TableComponentProps {
     title: string;
     data?: any[] | undefined;
@@ -6,7 +8,8 @@ interface TableComponentProps {
         name: string,
         keyName: string,
     }[],
-    searchByWord: (word: string, page: number, itemsPerPage: number) => void;
+    defaultOrderBy?: OrdeByFilterEntity | undefined,
+    searchByWord: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => void;
     page: number;
     itemsPerPage?: number;
     totalPages?: number;

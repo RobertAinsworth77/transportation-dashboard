@@ -112,7 +112,7 @@ const AuthRepositoryImpl: AuthRepository = {
         };
         CIServiceProvider.confirmForgotPassword(params, (err, data) => {
             if (err) {
-                reject(err);
+                reject(err.code);
             }
             else {
                 resolve();

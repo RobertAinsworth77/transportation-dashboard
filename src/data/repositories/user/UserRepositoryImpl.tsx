@@ -1,5 +1,8 @@
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 import UserEntity, { UserEntityRole, UserEntityStatus } from "../../../domain/entities/UserEntity";
+import KeyWordLocalization from "../../../domain/providers/language/dictionaries/KeyWordLocalization";
 import UserRepository, { GetFiltredResponse } from "../../../domain/repositories/UserRepository";
+import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
 import UserHostDto from "../../dto/user/UserHostDto";
 import HostApi from "../../settings/host/HostApi";
 
@@ -15,11 +18,12 @@ const UserRepositoryImpl: UserRepository = {
             status: UserEntityStatus.active
         });
     }),
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
         const body = {
             "items_per_page": itemsPerPage,
             "page": page,
-            "search_word": word
+            "search_word": word,
+            ...OrderByHostDto.toJson(orderBy, UserHostDto.toDBColumName)
         }
         try {
             const response = await HostApi.post('/dashboard/users/search', body);
@@ -28,7 +32,8 @@ const UserRepositoryImpl: UserRepository = {
                 total_pages: response.total_pages,
                 current_page: page,
                 total_rows: response.total_rows,
-                users: usersMapped
+                users: usersMapped,
+                orderBy: OrderByHostDto.fromJson(response.order_by, UserHostDto.fromDBColumName)
             }
             return resolve(responseMapped);
         } catch (error) {
@@ -56,7 +61,8 @@ const UserRepositoryImpl: UserRepository = {
         try {
             const body = UserHostDto.toJson(user);
             body.phone = "+" + body.phone;
-            await HostApi.post('/dashboard/users/admin', body);
+            const response = await HostApi.post('/dashboard/users/admin', body);
+            if(response?.statusCode == 400) return reject(KeyWordLocalization.UsernameExistsException);
             return resolve();
         } catch (error) {
             reject(error);

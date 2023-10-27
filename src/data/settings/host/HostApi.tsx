@@ -1,4 +1,3 @@
-import axios from "axios";
 import AuthRepositoryImpl from "../../repositories/auth/AuthRepositoryImpl";
 
 const url = "https://2z9nw7bxvh.execute-api.us-east-1.amazonaws.com/dev";

@@ -12,6 +12,7 @@ import * as GetFiltredTripsUseCase from '../../../domain/use_cases/trip/GetFiltr
 import DeleteTripModalComponent from "./delete/DeleteTripModalComponent";
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../routes/RoutesComponent";
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 
 const TripPage: FC<{}> = () => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -25,35 +26,50 @@ const TripPage: FC<{}> = () => {
     const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
     const [searchWord, setSearchWord] = useState<string>('');
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+    const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-    const _searchTrips = async (word: string, page: number, itemsPerPageR: number) => {
+    const _searchTrips = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
         setCurrentPage(page);
         setTrips(undefined);
         setTotalResults(undefined);
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
+<<<<<<< HEAD
         const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR);
         setTrips(response.trips);
         setCurrentPage(response.current_page);
         setTotalPages(response.total_pages);
         setTotalResults(response.total_rows);
+=======
+        setOrderBy(_orderBy);
+        try {
+            const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR, _orderBy);
+            setTrips(response.trips);
+            setCurrentPage(response.current_page);
+            setTotalPages(response.total_pages);
+            setTotalResults(response.total_rows);
+            setOrderBy(response.orderBy);
+        } catch (error) {
+            setTrips([]);
+        }
+>>>>>>> test
     }
     const _handleAdd = async () => navigate(routes.add_trip.relativePath);
-    const _handleEdit = async (trip:TripEntity) => navigate(routes.edit_trip.relativePath+'/'+trip.id);
+    const _handleEdit = async (trip: TripEntity) => navigate(routes.edit_trip.relativePath + '/' + trip.id);
     const _handleDelete = async (trip: TripEntity) => {
         const deleteTrip = async () => {
             await di.useCases.deleteTripUseCase.call(trip.id);
-            _searchTrips(searchWord, currentPage, itemsPerPage);
+            _searchTrips(searchWord, currentPage, itemsPerPage, orderBy);
             closeModalCustom();
         }
 
         openModalCustom('sm', i18n(KeyWordLocalization.TripsPageDeleteTrip), <DeleteTripModalComponent done={() => deleteTrip()} />)
 
     }
-    const _handleRowClick = async (trip: TripEntity) => navigate(routes.trip.relativePath+'/'+trip.id);
+    const _handleRowClick = async (trip: TripEntity) => navigate(routes.trip.relativePath + '/' + trip.id);
 
     useEffect(() => {
-        _searchTrips(searchWord, currentPage, itemsPerPage);
+        _searchTrips(searchWord, currentPage, itemsPerPage, orderBy);
     }, []);
 
 

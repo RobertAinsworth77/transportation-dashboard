@@ -13,6 +13,7 @@ import ModalsContext from '../../../domain/providers/modal/ModalsContext';
 import ModalsContextType from '../../../domain/providers/modal/ModalsContextType';
 import AddDriverModalComponent from './components/add/AddDriverModalComponent';
 import DeleteDriverModalComponent from './components/delete/DeleteDriverModalComponent';
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 
 const DriversPage: FC<DriversPageProps> = () => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -25,34 +26,37 @@ const DriversPage: FC<DriversPageProps> = () => {
   const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
   const [searchWord, setSearchWord] = useState<string>('');
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-  const _searchDrivers = async (word: string, page: number, itemsPerPageR: number) => {
+  const _searchDrivers = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
     console.log(word, page, itemsPerPageR)
     setCurrentPage(page);
     setDrivers(undefined);
     setTotalResults(undefined);
     setSearchWord(word);
     setItemsPerPage(itemsPerPageR);
+    setOrderBy(_orderBy);
     try {
-      const response: GetFiltredDriversUseCase.response = await di.useCases.getFiltredDriversUseCase?.call(word, page, itemsPerPageR);
+      const response: GetFiltredDriversUseCase.response = await di.useCases.getFiltredDriversUseCase?.call(word, page, itemsPerPageR, _orderBy);
       setDrivers(response.drivers);
       setCurrentPage(response.current_page);
       setTotalPages(response.total_pages);
-      setTotalResults(response.total_rows);        
+      setTotalResults(response.total_rows); 
+      setOrderBy(response.orderBy);
     } catch (error) {
       setDrivers([]);
     }
   }
 
   const _handleEdit = async (driver: DriverEntity) => {
-    openModalCustom('lg', i18n(KeyWordLocalization.DriversPageEditDriver), <AddDriverModalComponent driver={driver} done={() => _searchDrivers(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.DriversPageEditDriver), <AddDriverModalComponent driver={driver} done={() => _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
 
   const _handleDelete = async (driver: DriverEntity) => {
     const deleteDriver = async () => {
       await di.useCases.deleteDriverUseCase.call(driver.id);
-      _searchDrivers(searchWord, currentPage, itemsPerPage)
+      _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy)
     }
 
     openModalCustom('sm', i18n(KeyWordLocalization.DriversPageDeleteDriver), <DeleteDriverModalComponent done={() => deleteDriver()} />)
@@ -60,11 +64,11 @@ const DriversPage: FC<DriversPageProps> = () => {
 
 
   const _handleAdd = async () => {
-    openModalCustom('lg', i18n(KeyWordLocalization.DriversPageAddDriver), <AddDriverModalComponent done={() => _searchDrivers(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.DriversPageAddDriver), <AddDriverModalComponent done={() => _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   useEffect(() => {
-    _searchDrivers(searchWord, currentPage, itemsPerPage);
+    _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy);
   }, []);
 
   return <div className="DriversPage bg_1 p-5">

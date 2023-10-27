@@ -11,6 +11,20 @@
     "SitesPageName": "Sites",
     "AddTripPageName": "Add Trip",
 
+    "----------------------Modals-----------------":"",
+    "ModalSearchEmployeeDescription": "Search if an employee exists usign the employee's email",
+    "ModalSearchEmployeePlaceholder": "Email",
+    "ModalSearchEmployeeUserNotFound": "Employee not found",
+    "ModalSearchEmployeeUserFound": "The employee {name} identified with HRM #{id} was found",
+
+    "ModalSearchMultipleEmployeeDescription": "Search for employees by their HRM ID, separate with a comma to search for multiple",
+    "ModalSearchMultipleEmployeePlaceholder": "HRM IDs",
+    "ModalSearchMultipleEmployeeExample": "For example, search for 1111, 2222, 3333",
+    "ModalSearchMultipleEmployeeUserNotFound": "The employee with HRM #{hrm} was not found",
+    "ModalSearchMultipleEmployeeUserFound": "Employee {name} identified with HRM #{hrm} was found, and their email is {email}",
+    "ModalSearchMultipleEmployeeErrorPattern": "You must enter the HRM IDs separated by a comma",
+    "ModalSearchMultipleEmployeeError": "Error searching for employees",
+    
     "----------------------General-----------------":"",
     "UnknownError": "Unknown error",
     "Search": "Search",
@@ -26,7 +40,7 @@
     "Cancel": "Cancel",
     "SavedSuccessfully": "Saved successfuly",
     "ErrorSaving": "Unknown error saving",
-    "PasswordConfirm": "Password Confirm",
+    "PasswordConfirm": "Confirm Password",
     "PasswordsNotMatch": "Passwords not match",
     "Loading": "Loading",
     "SignOut": "Sign Out",
@@ -53,6 +67,11 @@
 
     "----------------------Errors-----------------":"",
     "LimitExceededException": "Limit Exceeded. Please Try Again Later",
+    "NetworkingError": "Networking Error. Check Your Internet Connection",
+    "ExpiredCodeException": "Expired Code. Tap On Send Again",
+    "InvalidPasswordException": "Invalid Password. Please Try Again",
+    "CodeMismatchException": "Code Doesn't Match",
+    "UsernameExistsException": "Username Already Exists",
 
     "----------------------Entities-----------------":"",
     "DriverEntityName": "Name",
@@ -115,6 +134,12 @@
     "HomePageSitesModule": "Sites",
     "HomePageTripsModule": "Trips",
     "HomePageRoutesModule": "Routes",
+
+    "ActionLineComponentActions": "Adittional functions",
+    "ActionLineComponentCheckMultipleByHRM": "Check employees by HRM ID",
+    "ActionLineComponentCheckEmail": "Check employee by email",
+    "ActionLineComponentCheckEmailModelTitle": "Check employee by email",
+    "ActionLineComponentCheckMultiplebyHRMModelTitle": "Check employees by HRM ID",
 
     "UsersHomePageName": "People",
     "UsersPageName": "Users",
@@ -230,6 +255,10 @@
     "ShowUpdateComponentUpdate": "Update",
     "ShowUpdateComponentDownloadNow": "Download Now",
     "ShowUpdateComponentRemindMeLater": "Remind me later",
+
+    "TableComponentResults": "Results: {results}",
+    "TableComponentShowing": "Showing",
+    "TableComponentItemsPage": "Items, Page",
 
     "----------------------Server-----------------":"",
     "EmergencyOptionAmbulance": "Ambulance",

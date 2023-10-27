@@ -1,7 +1,9 @@
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 import PositionEntity from "../../../domain/entities/PositionEntity";
 import RouteEntity from "../../../domain/entities/RouteEntity";
 import RouteRepository, { GetFiltredResponse } from "../../../domain/repositories/RouteRepository";
 import { GMAPS_API_KEY } from "../../../ui/utils/Constants";
+import OrderByHostDto from "../../dto/orderByFilter/OrderByHostDto";
 import RouteHostDto from "../../dto/route/RouteHostDto";
 import HostApi from "../../settings/host/HostApi";
 
@@ -9,7 +11,7 @@ const LOCAL_STORAGE_ROUTE_KEY = 'routes_local';
 const RouteRepositoryImpl: RouteRepository = {
     searchByWord: (word: string): Promise<RouteEntity[]> => new Promise<RouteEntity[]>(async (resolve, reject) => {
         const body = {
-            "items_per_page": 10,
+            "items_per_page": 20,
             "page": 1,
             "search_word": word
         }
@@ -24,11 +26,12 @@ const RouteRepositoryImpl: RouteRepository = {
             reject(error);
         }
     }),
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
         const body = {
             "items_per_page": itemsPerPage,
             "page": page,
-            "search_word": word
+            "search_word": word,
+            ...OrderByHostDto.toJson(orderBy, RouteHostDto.toDBColumName)
         }
         try {
             let response = await HostApi.post('/admin_get_routes', body);
@@ -40,7 +43,8 @@ const RouteRepositoryImpl: RouteRepository = {
                 total_pages: response.total_pages,
                 current_page: page,
                 total_rows: response.total_rows,
-                routes: routesParsed
+                routes: routesParsed,
+                orderBy: OrderByHostDto.fromJson(response.order_by, RouteHostDto.fromDBColumName)
             }
             return resolve(responseOrded);
         } catch (error) {

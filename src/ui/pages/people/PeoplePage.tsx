@@ -16,6 +16,8 @@ import LanguageContext from '../../../domain/providers/language/LanguageContext'
 import LanguageContextType from '../../../domain/providers/language/LanguageContextType';
 import AddDriverModalComponent from '../driver/components/add/AddDriverModalComponent';
 import { UserEntityRole } from '../../../domain/entities/UserEntity';
+import ModalSearchEmployee from '../../components/modals/searchEmployee/ModalSearchEmployee';
+import ActionsLineComponent from '../../components/actionsLine/ActionsLineComponent';
 
 const PeoplePage: FC<PeoplePageProps> = () => {
 
@@ -51,6 +53,7 @@ const PeoplePage: FC<PeoplePageProps> = () => {
           <CardCounterComponent title={i18n(KeyWordLocalization.HomePageUsersModule)} counter={countersUsers?.users_count ?? 0} add={_handleAddUser} seeAllUrl={routes.users.relativePath} />
         </div>}
       </div>
+      <ActionsLineComponent />
     </div>
   </div>
 }

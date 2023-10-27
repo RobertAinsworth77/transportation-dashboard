@@ -1,3 +1,4 @@
+import { OrdeByFilterEntity } from "../../../domain/entities/OrdeByFilterEntity";
 import UserEntity, { UserEntityRole, UserEntityStatus } from "../../../domain/entities/UserEntity";
 import UserRepository, { GetFiltredResponse } from "../../../domain/repositories/UserRepository";
 
@@ -13,11 +14,15 @@ const UserRepositoryTest: UserRepository = {
             status: UserEntityStatus.active
         });
     }),
-    getFiltred: (word: string, page: number, itemsPerPage: number): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>((resolve, reject) => {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity| undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>((resolve, reject) => {
         resolve({
             total_pages: 20,
             current_page: 10,
             total_rows: 3,
+            orderBy: {
+                keyName: 'id',
+                isDesc: false,
+            },
             users: [
                 {
                     id: 1,

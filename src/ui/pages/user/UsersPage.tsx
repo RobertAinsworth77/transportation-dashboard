@@ -15,6 +15,7 @@ import DeleteUserModalComponent from './components/delete/DeleteUserModalCompone
 import UsersPageProps from './UsersPageProps';
 import UserContext from '../../../domain/providers/user/UserContext';
 import UserContextType from '../../../domain/providers/user/UserContextType';
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 
 const UsersPage: FC<UsersPageProps> = () => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -28,39 +29,46 @@ const UsersPage: FC<UsersPageProps> = () => {
   const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
   const [searchWord, setSearchWord] = useState<string>('');
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-  const _searchUsers = async (word: string, page: number, itemsPerPageR: number) => {
+  const _searchUsers = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
     setCurrentPage(page);
     setUsers(undefined);
     setTotalResults(undefined);
     setSearchWord(word);
     setItemsPerPage(itemsPerPageR);
-    const response: GetFiltredUsersUseCase.response = await di.useCases.getFiltredUsersUseCase?.call(word, currentPage, itemsPerPageR);
-    setUsers(response.users);
-    setCurrentPage(response.current_page);
-    setTotalPages(response.total_pages);
-    setTotalResults(response.total_rows);
+    setOrderBy(_orderBy);
+    try {
+      const response: GetFiltredUsersUseCase.response = await di.useCases.getFiltredUsersUseCase?.call(word, currentPage, itemsPerPageR, _orderBy);
+      setUsers(response.users);
+      setCurrentPage(response.current_page);
+      setTotalPages(response.total_pages);
+      setTotalResults(response.total_rows);
+      setOrderBy(response.orderBy);
+    } catch (error) {
+      setUsers([]);
+    }
   }
 
   const _handleEdit = async (user: UserEntity) => {
-    openModalCustom('lg',i18n(KeyWordLocalization.UsersPageEditUser), <AddUserModalComponent userEditing={user} done={() => _searchUsers(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.UsersPageEditUser), <AddUserModalComponent userEditing={user} done={() => _searchUsers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   const _handleDelete = async (user: UserEntity) => {
     const deleteUser = async () => {
       await di.useCases.deleteUserUseCase.call(user.id);
-      _searchUsers(searchWord, currentPage, itemsPerPage)
+      _searchUsers(searchWord, currentPage, itemsPerPage, orderBy)
     }
-  
-    openModalCustom('sm',i18n(KeyWordLocalization.UsersPageDeleteUser), <DeleteUserModalComponent done={() => deleteUser ()} />)
+
+    openModalCustom('sm', i18n(KeyWordLocalization.UsersPageDeleteUser), <DeleteUserModalComponent done={() => deleteUser()} />)
   }
 
   const _handleAdd = async () => {
-    openModalCustom('lg',i18n(KeyWordLocalization.UsersPageAddUser), <AddUserModalComponent done={() => _searchUsers(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg', i18n(KeyWordLocalization.UsersPageAddUser), <AddUserModalComponent done={() => _searchUsers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   useEffect(() => {
-    _searchUsers(searchWord, currentPage, itemsPerPage);
+    _searchUsers(searchWord, currentPage, itemsPerPage, orderBy);
   }, []);
 
   return <div className="UsersPage bg_1 p-5">

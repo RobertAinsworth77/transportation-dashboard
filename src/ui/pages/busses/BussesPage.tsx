@@ -13,6 +13,7 @@ import AddBusModalComponent from './components/add/AddBusModalComponent';
 import DeleteBusModalComponent from './components/delete/DeleteBusModalComponent';
 import './BussesPage.scss';
 import BussesPageProps from './BussesPageProps';
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 
 const BussesPage: FC<BussesPageProps> = () => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -25,39 +26,46 @@ const BussesPage: FC<BussesPageProps> = () => {
   const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
   const [searchWord, setSearchWord] = useState<string>('');
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-  const _searchBusses = async (word: string, page: number, itemsPerPageR: number) => {
+  const _searchBusses = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
     setCurrentPage(page);
     setBusses(undefined);
     setTotalResults(undefined);
     setSearchWord(word);
     setItemsPerPage(itemsPerPageR);
-    const response: GetFiltredBussesUseCase.response = await di.useCases.getFiltredBussesUseCase?.call(word, currentPage, itemsPerPageR);
-    setBusses(response.busses);
-    setCurrentPage(response.current_page);
-    setTotalPages(response.total_pages);
-    setTotalResults(response.total_rows);
+    setOrderBy(_orderBy);
+    try {
+      const response: GetFiltredBussesUseCase.response = await di.useCases.getFiltredBussesUseCase?.call(word, currentPage, itemsPerPageR, _orderBy);
+      setBusses(response.busses);
+      setCurrentPage(response.current_page);
+      setTotalPages(response.total_pages);
+      setTotalResults(response.total_rows);
+      setOrderBy(response.orderBy);        
+    } catch (error) {
+      setBusses([]);
+    }
   }
 
   const _handleEdit = async (bus: BusEntity) => {
-    openModalCustom('lg',i18n(KeyWordLocalization.BussesPageEditBus), <AddBusModalComponent bus={bus} done={() => _searchBusses(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg',i18n(KeyWordLocalization.BussesPageEditBus), <AddBusModalComponent bus={bus} done={() => _searchBusses(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   const _handleDelete = async (bus: BusEntity) => {
     const deleteBus = async () => {
       await di.useCases.deleteBusUseCase.call(bus.id);
-      _searchBusses(searchWord, currentPage, itemsPerPage)
+      _searchBusses(searchWord, currentPage, itemsPerPage, orderBy)
     }
   
     openModalCustom('sm',i18n(KeyWordLocalization.BussesPageDeleteBus), <DeleteBusModalComponent done={() => deleteBus ()} />)
   }
 
   const _handleAdd = async () => {
-    openModalCustom('lg',i18n(KeyWordLocalization.BussesPageAddBus), <AddBusModalComponent done={() => _searchBusses(searchWord, currentPage, itemsPerPage)} />)
+    openModalCustom('lg',i18n(KeyWordLocalization.BussesPageAddBus), <AddBusModalComponent done={() => _searchBusses(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
   useEffect(() => {
-    _searchBusses(searchWord, currentPage, itemsPerPage);
+    _searchBusses(searchWord, currentPage, itemsPerPage, orderBy);
   }, []);
 
   return <div className="busses_page bg_1 p-5">

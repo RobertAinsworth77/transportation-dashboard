@@ -12,6 +12,7 @@ import * as GetFiltredRoutesUseCase from '../../../domain/use_cases/route/GetFil
 import DeleteRouteModalComponent from "./delete/DeleteRouteModalComponent";
 import { useNavigate } from "react-router-dom";
 import { routes as navRoutes } from "../../routes/RoutesComponent";
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 
 const RoutePage: FC<{}> = () => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
@@ -25,19 +26,22 @@ const RoutePage: FC<{}> = () => {
     const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
     const [searchWord, setSearchWord] = useState<string>('');
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+    const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-    const _searchRoutes = async (word: string, page: number, itemsPerPageR: number) => {
+    const _searchRoutes = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
         setCurrentPage(page);
         setRoutes(undefined);
         setTotalResults(undefined);
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
+        setOrderBy(_orderBy);
         try {
-            const response: GetFiltredRoutesUseCase.response = await di.useCases.getFiltredRoutesUseCase?.call(word, currentPage, itemsPerPageR);
+            const response: GetFiltredRoutesUseCase.response = await di.useCases.getFiltredRoutesUseCase?.call(word, currentPage, itemsPerPageR, _orderBy);
             setRoutes(response.routes);
             setCurrentPage(response.current_page);
             setTotalPages(response.total_pages);
-            setTotalResults(response.total_rows);                
+            setTotalResults(response.total_rows);     
+            setOrderBy(response.orderBy);           
         } catch (error) {
             setRoutes([]);
         }
@@ -47,7 +51,7 @@ const RoutePage: FC<{}> = () => {
     const _handleDelete = async (route: RouteEntity) => {
         const deleteRoute = async () => {
             await di.useCases.deleteRouteUseCase.call(route.id);
-            _searchRoutes(searchWord, currentPage, itemsPerPage)
+            _searchRoutes(searchWord, currentPage, itemsPerPage, orderBy)
         }
 
         openModalCustom('sm', i18n(KeyWordLocalization.RoutesPageDeleteRoute), <DeleteRouteModalComponent done={() => deleteRoute()} />)
@@ -55,7 +59,7 @@ const RoutePage: FC<{}> = () => {
     const _handleRowClick = async (route: RouteEntity) => navigate(navRoutes.route.relativePath+'/'+route.id);
 
     useEffect(() => {
-        _searchRoutes(searchWord, currentPage, itemsPerPage);
+        _searchRoutes(searchWord, currentPage, itemsPerPage, orderBy);
     }, []);
 
 

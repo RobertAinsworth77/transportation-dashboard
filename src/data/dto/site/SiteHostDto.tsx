@@ -16,9 +16,34 @@ const fromJson = (json: any): SiteEntity => {
     }
 }
 
+const toDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'name':
+            return 'site_name';
+        case 'country':
+            return 'country';
+        default:
+            return 'site_id';
+    }
+}
+
+const fromDBColumName = (keyName: string | undefined): string => {
+    switch (keyName) {
+        case 'site_name':
+            return 'name';
+        case 'country':
+            return 'country';
+        default:
+            return 'id';
+    }
+}
+
+
 const SiteHostDto = {
     toJson,
     fromJson,
+    toDBColumName,
+    fromDBColumName,
 }
 
 export default SiteHostDto;

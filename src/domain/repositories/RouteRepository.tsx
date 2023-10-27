@@ -1,3 +1,4 @@
+import { OrdeByFilterEntity } from "../entities/OrdeByFilterEntity";
 import PositionEntity from "../entities/PositionEntity";
 import RouteEntity from "../entities/RouteEntity";
 
@@ -5,11 +6,12 @@ export interface GetFiltredResponse {
     total_pages: number,
     current_page: number,
     total_rows: number,
-    routes: RouteEntity[]
+    routes: RouteEntity[],
+    orderBy: OrdeByFilterEntity | undefined
 }
 export default interface RouteRepository {
     searchByWord: (word: string) => Promise<RouteEntity[]>;
-    getFiltred: (word: string, page: number, itemsPerPage: number) => Promise<GetFiltredResponse>
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => Promise<GetFiltredResponse>
     getById: (id: number) => Promise<RouteEntity>
     delete: (id: number) => Promise<void>
     update: (driver: RouteEntity) => Promise<void>

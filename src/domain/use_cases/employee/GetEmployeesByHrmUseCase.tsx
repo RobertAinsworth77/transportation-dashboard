@@ -2,18 +2,20 @@ import EmployeeEntity from "../../entities/EmployeeEntity";
 import EmployeeRepository from "../../repositories/EmployeeRepository";
 
 interface props { employeeRepository: EmployeeRepository }
-export default class UpdateEmployeeUseCase {
+export default class GetEmployeesByHrmUseCase {
     _employeeRepository: EmployeeRepository;
 
     constructor(_: props) {
         this._employeeRepository = _.employeeRepository;
     }
 
-    public call = async (employee: EmployeeEntity) => new Promise<void>(async (resolve, reject) => {
+    public call = async (hrms: string[]) => new Promise<EmployeeEntity[] | null>(async (resolve, reject) => {
         try {
-            await this._employeeRepository.update(employee);
-            return resolve();
+            const response = await this._employeeRepository.getMultipleByHrmId(hrms);
+            console.log('response in use case', response);
+            return resolve(response);
         } catch (_) {
+            console.log('error in usecase', _)
             return reject();
         }
     });

@@ -18,7 +18,11 @@ const toJson = (employee: EmployeeEntity): any => {
 
 const fromJson = (json: any): EmployeeEntity => {
     return {
+<<<<<<< HEAD
         id: json.employee_id,
+=======
+        id: json.employee_id ?? json.hrm_id,
+>>>>>>> test
         name: json.name,
         phone: json.phone_number ?? 'phone_number',
         email: json.email ?? '',

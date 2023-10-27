@@ -2,17 +2,17 @@ import EmployeeEntity from "../../entities/EmployeeEntity";
 import EmployeeRepository from "../../repositories/EmployeeRepository";
 
 interface props { employeeRepository: EmployeeRepository }
-export default class CreateEmployeeUseCase {
+export default class GetEmployeeByEmailUseCase {
     _employeeRepository: EmployeeRepository;
 
     constructor(_: props) {
         this._employeeRepository = _.employeeRepository;
     }
 
-    public call = async (employee: EmployeeEntity) => new Promise<void>(async (resolve, reject) => {
+    public call = async (email: string) => new Promise<EmployeeEntity | null>(async (resolve, reject) => {
         try {
-            await this._employeeRepository.update(employee);
-            return resolve();
+            const response = await this._employeeRepository.getByEmail(email);
+            return resolve(response);
         } catch (_) {
             return reject();
         }
