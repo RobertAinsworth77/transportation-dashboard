@@ -19,7 +19,7 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
     const [employees, setEmployees] = useState<EmployeeEntity[] | null>(null);
     const [searchingHrms, setSearchingHrms] = useState<string[]>([]);
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
 
     const _handleSearch = async (_: any) => {
         setEmployees(null);
@@ -39,6 +39,15 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
         return employees?.find(employee => employee?.id?.toString() == hrm);
     }
 
+    const _checkOnlyNumbersAndCommas = (e: React.ChangeEvent<HTMLInputElement>) => {
+        //if e only accepts numbers and commas, could be multiple commas, remove all character diferent or letter
+        console.log('e', e);
+        let result = e.target.value.replaceAll(/[^0-9,]/g, '');
+        result = result.replace(/,/g, ', ');
+        console.log('result', result);
+        setValue('hrms', result);
+    }
+
     return <div className="delete_bus_modal_component">
         <form onSubmit={handleSubmit(_handleSearch)}>
             <div className="row">
@@ -46,6 +55,7 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
                     <label>{i18n(KeyWordLocalization.ModalSearchMultipleEmployeeDescription)}</label>
                     <input type="hrms" {...register("hrms", Validators({
                         required: true,
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => _checkOnlyNumbersAndCommas(e),
                         pattern: {
                             pattern: /^\s*\d+\s*(,\s*\d+\s*)*$/,
                             message: i18n(KeyWordLocalization.ModalSearchMultipleEmployeeErrorPattern)
@@ -69,7 +79,7 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
                 <div className="w-100">
                     {employees != null && searchingHrms.map((hrm, index) =>
                         _getEmployeeOfEmploye(hrm) != null ?
-                            <div className="text-success">{i18n(KeyWordLocalization.ModalSearchMultipleEmployeeUserFound, { 'name': _getEmployeeOfEmploye(hrm)!.name, 'hrm': _getEmployeeOfEmploye(hrm)!.id, 'email': _getEmployeeOfEmploye(hrm)!.email })}</div> :
+                            <div className="text-success">{i18n(KeyWordLocalization.ModalSearchMultipleEmployeeUserFound, { 'name': _getEmployeeOfEmploye(hrm)!.name + (_getEmployeeOfEmploye(hrm)!.lastname ? ' ' + _getEmployeeOfEmploye(hrm)!.lastname : ''), 'hrm': _getEmployeeOfEmploye(hrm)!.id, 'email': _getEmployeeOfEmploye(hrm)!.email })}</div> :
                             <div key={index} className="text-danger">{i18n(KeyWordLocalization.ModalSearchMultipleEmployeeUserNotFound, { 'hrm': hrm })}</div>)}
                 </div>
             </div>

@@ -32,8 +32,9 @@ const ModalSearchEmployee: FC<{}> = ({ }) => {
             <div className="row">
                 <div className={`col-12 form-group ${errors.confirm ? 'error' : ''}`}>
                     <label>{i18n(KeyWordLocalization.ModalSearchEmployeeDescription)}</label>
-                    <input type="email" {...register("email", Validators({
+                    <input type="text" {...register("email", Validators({
                         required: true,
+                        email: true,
                     }))} className="form-control my-2" placeholder={i18n(KeyWordLocalization.ModalSearchEmployeePlaceholder)} />
                     <ErrorMessage as="aside" errors={errors} name="email" />
                 </div>
@@ -51,7 +52,7 @@ const ModalSearchEmployee: FC<{}> = ({ }) => {
                 </div>
                 <div className="w-100">
                     {employee === null && <div className="text-danger">{i18n(KeyWordLocalization.ModalSearchEmployeeUserNotFound)}</div>}
-                    {employee !== undefined && employee !== null && <div className="text-success">{i18n(KeyWordLocalization.ModalSearchEmployeeUserFound, { 'name': employee.name, 'id': employee.id })}</div>}
+                    {employee !== undefined && employee !== null && <div className="text-success">{i18n(KeyWordLocalization.ModalSearchEmployeeUserFound, { 'name': employee.name + (employee.lastname ? ' ' + employee.lastname : ''), 'id': employee.id })}</div>}
                 </div>
             </div>
         </form >
