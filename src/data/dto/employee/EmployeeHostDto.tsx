@@ -22,6 +22,7 @@ const fromJson = (json: any): EmployeeEntity => {
         name: json.name,
         phone: json.phone_number ?? 'phone_number',
         email: json.email ?? '',
+        lastname: json.last_name,
         country: json.country,
         enabled: json.status == 'able',
         passengerStatus: json.status_booking == null ? undefined :
