@@ -18,12 +18,13 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
     const [employees, setEmployees] = useState<EmployeeEntity[] | null>(null);
     const [searchingHrms, setSearchingHrms] = useState<string[]>([]);
+    let hrmInputVal = "";
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
 
     const _handleSearch = async (_: any) => {
         setEmployees(null);
-        const hrms = _.hrms.replaceAll(' ', '').split(',');
+        const hrms = _.hrms.replaceAll(' ', '').replace(/,$/g, '').split(',');
         setSearchingHrms(hrms);
         console.log('send hrms', hrms)
         const response = await di.useCases.getEmployeesByHrmUseCase.call(hrms);
@@ -40,12 +41,27 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
     }
 
     const _checkOnlyNumbersAndCommas = (e: React.ChangeEvent<HTMLInputElement>) => {
+        //if last type was a delete, replace , , with ,
+        let result = e.target.value;
+        let cursorPosition = e.target.selectionStart ?? 0;
+        if (result.length - 1 < hrmInputVal.length) {
+            result = result.replace(/(\d),(\d)/g, (_, p1, p2) => p1 + p2);
+            result = result.replaceAll(/,$/g, '');
+            result = result.replaceAll(/[^0-9,]/g, '').replace(/,/g, ', ');
+            result = result.replaceAll(', ,', ',');
+            //if deleted is a white space, move cursor to the left
+            if(hrmInputVal[cursorPosition] == ' ')
+            cursorPosition = cursorPosition == 0 ? 0 : cursorPosition - 1;
+        }
+        const newPosition = result.substring(0, cursorPosition ?? 0).replaceAll(/[^0-9,]/g, '').replace(/,/g, ', ').length;
         //if e only accepts numbers and commas, could be multiple commas, remove all character diferent or letter
-        console.log('e', e);
-        let result = e.target.value.replaceAll(/[^0-9,]/g, '');
-        result = result.replace(/,/g, ', ');
-        console.log('result', result);
+        result = result.replaceAll(/[^0-9,]/g, '').replace(/,/g, ', ');
+        console.log('cursor position', cursorPosition, newPosition, result.length);
+        //detects input change and move cursor to this position
+        hrmInputVal = result;
         setValue('hrms', result);
+        e.target.selectionStart = newPosition;
+        e.target.selectionEnd = newPosition;
     }
 
     return <div className="delete_bus_modal_component">
@@ -57,7 +73,7 @@ const ModalSearchMultipleEmployee: FC<{}> = ({ }) => {
                         required: true,
                         onChange: (e: React.ChangeEvent<HTMLInputElement>) => _checkOnlyNumbersAndCommas(e),
                         pattern: {
-                            pattern: /^\s*\d+\s*(,\s*\d+\s*)*$/,
+                            pattern: /^\s*\d+\s*(,\s*\d+\s*)*(, )?$/,
                             message: i18n(KeyWordLocalization.ModalSearchMultipleEmployeeErrorPattern)
                         }
                     }))} className="form-control my-2" placeholder={i18n(KeyWordLocalization.ModalSearchMultipleEmployeePlaceholder)} />
