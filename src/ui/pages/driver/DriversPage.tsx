@@ -67,10 +67,6 @@ const DriversPage: FC<DriversPageProps> = () => {
     openModalCustom('lg', i18n(KeyWordLocalization.DriversPageAddDriver), <AddDriverModalComponent done={() => _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
-  useEffect(() => {
-    _searchDrivers(searchWord, currentPage, itemsPerPage, orderBy);
-  }, []);
-
   return <div className="DriversPage bg_1 p-5">
     <TableComponent title={i18n(KeyWordLocalization.DriversPageTitle)}
       columns={[

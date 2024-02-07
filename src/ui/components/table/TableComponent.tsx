@@ -1,4 +1,4 @@
-import { FC, useState, useRef } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import './TableComponent.scss';
 import TableProps from './TableComponentProps';
 import { MdAdd, MdEdit, MdDelete, MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
@@ -11,11 +11,13 @@ import KeyWordLocalization from '../../../domain/providers/language/dictionaries
 import DateParse from '../../utils/DateParse';
 import NotResultsComponent from '../notResults/NotResultsComponent';
 import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
+import { useNavigate } from 'react-router-dom';
 
 const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title, defaultOrderBy }) => {
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
   const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm();
   const formRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const [_orderBy, _setOrderBy] = useState<OrdeByFilterEntity | undefined>(defaultOrderBy);
 
@@ -37,6 +39,8 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
     _timerTap = setTimeout(() => onSubmit(getValues()), 1000);
   }
   const onSubmit = (data: any) => {
+    //change url params 
+    navigate(`?q1=&search=${data.search}&page=${data.page}&itemsPerPage=${data.itemsPerPage}`);
     searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy);
     clearTimeout(_timerTap);
   }
@@ -74,6 +78,16 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
       _handleChangeText();
     }
   }
+
+  const _searchTripsFirstTime = () => {
+    const urlParams = new URLSearchParams(window.location.hash);
+    searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy);
+  }
+
+  useEffect(() => {
+    _searchTripsFirstTime();
+}, []);
+
 
   return <div className='TableComponent w-100'>
     <form onSubmit={handleSubmit(onSubmit)}>

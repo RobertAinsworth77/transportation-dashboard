@@ -32,6 +32,7 @@ const TripPage: FC<{}> = () => {
         setCurrentPage(page);
         setTrips(undefined);
         setTotalResults(undefined);
+        console.log('getted search word', word)
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
         setOrderBy(_orderBy);
@@ -59,11 +60,6 @@ const TripPage: FC<{}> = () => {
 
     }
     const _handleRowClick = async (trip: TripEntity) => navigate(routes.trip.relativePath + '/' + trip.id);
-
-    useEffect(() => {
-        _searchTrips(searchWord, currentPage, itemsPerPage, orderBy);
-    }, []);
-
 
     return <div className="trip_page">
         <TableComponent title={i18n(KeyWordLocalization.TripPageTitle)}

@@ -107,22 +107,22 @@ const DetailedTripPage: FC<{}> = () => {
                     </h5>
                     {trip.passengers.map((passenger) => <div key={passenger.id} className="d-flex my-2 px-3 align-items-center">
                         <div className="circle_name">
-                            {StringOptions.GetFirstLetterOfEachWord(passenger.name)}
+                            {StringOptions.GetFirstLetterOfEachWord(passenger.name + ' ' + passenger.lastname)}
                         </div>
                         <div className="flex-grow-1">
                             <div className="passenger_content">
-                                <strong>{passenger.name}</strong>
+                                <strong>{passenger.name} {passenger.lastname}</strong>
                                 <span>{i18n(KeyWordLocalization.DetailedTripPassengerOnBoard)}</span>
                             </div>
                         </div>
                     </div>)}
                     {trip.bookings.map((passenger) => <div key={passenger.id} className="d-flex my-2 px-3 align-items-center">
                         <div className="circle_name">
-                            {StringOptions.GetFirstLetterOfEachWord(passenger.name)}
+                        {StringOptions.GetFirstLetterOfEachWord(passenger.name + ' ' + passenger.lastname)}
                         </div>
                         <div className="flex-grow-1">
                             <div className="passenger_content">
-                                <strong>{passenger.name}</strong>
+                                <strong>{passenger.name} {passenger.lastname}</strong>
                                 <span>{i18n(KeyWordLocalization.DetailedTripPassengerBooked)}</span>
                             </div>
                         </div>

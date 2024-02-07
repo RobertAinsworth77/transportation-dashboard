@@ -67,10 +67,6 @@ const UsersPage: FC<UsersPageProps> = () => {
     openModalCustom('lg', i18n(KeyWordLocalization.UsersPageAddUser), <AddUserModalComponent done={() => _searchUsers(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
-  useEffect(() => {
-    _searchUsers(searchWord, currentPage, itemsPerPage, orderBy);
-  }, []);
-
   return <div className="UsersPage bg_1 p-5">
     <TableComponent title={i18n(KeyWordLocalization.UsersPageTitle)}
       columns={[

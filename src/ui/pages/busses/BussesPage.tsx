@@ -64,10 +64,6 @@ const BussesPage: FC<BussesPageProps> = () => {
     openModalCustom('lg',i18n(KeyWordLocalization.BussesPageAddBus), <AddBusModalComponent done={() => _searchBusses(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
-  useEffect(() => {
-    _searchBusses(searchWord, currentPage, itemsPerPage, orderBy);
-  }, []);
-
   return <div className="busses_page bg_1 p-5">
     <TableComponent title={i18n(KeyWordLocalization.BussesPageTitle)}
       columns={[

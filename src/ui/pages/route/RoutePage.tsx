@@ -58,11 +58,6 @@ const RoutePage: FC<{}> = () => {
     }
     const _handleRowClick = async (route: RouteEntity) => navigate(navRoutes.route.relativePath+'/'+route.id);
 
-    useEffect(() => {
-        _searchRoutes(searchWord, currentPage, itemsPerPage, orderBy);
-    }, []);
-
-
     return <div className="route_page">
         <TableComponent title={i18n(KeyWordLocalization.RoutePageTitle)}
             columns={[

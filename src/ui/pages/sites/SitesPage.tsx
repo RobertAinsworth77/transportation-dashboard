@@ -65,10 +65,6 @@ const SitesPage: FC<SitesPageProps> = () => {
     openModalCustom('lg', i18n(KeyWordLocalization.SitesPageAddSite), <AddSiteModalComponent done={() => _searchSites(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
-  useEffect(() => {
-    _searchSites(searchWord, currentPage, itemsPerPage, orderBy);
-  }, []);
-
   return <div className="sites_page bg_1 p-5">
     <TableComponent title={i18n(KeyWordLocalization.SitesPageTitle)}
       columns={[

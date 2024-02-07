@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import ModalsComponent from '../modals/ModalsComponent';
 import './LayoutComponent.scss';
 import LayoutProps from './LayoutComponentProps';
-import { MdMenuOpen, MdMenu, MdOutlineLogout } from "react-icons/md";
+import { MdMenuOpen, MdMenu, MdOutlineLogout, MdChevronLeft } from "react-icons/md";
 import { useContext } from 'react';
 import LanguageContext from '../../../domain/providers/language/LanguageContext';
 import LanguageContextType from '../../../domain/providers/language/LanguageContextType';
@@ -59,6 +59,7 @@ const LayoutComponent: FC<LayoutProps> = ({ children }) => {
       <div className="right_side">
         <div className="header">
           {open ? <MdMenuOpen size={32} onClick={() => setOpen(false)} className="hover" /> : <MdMenu onClick={() => setOpen(true)} size={32} className="hover" />}
+          <MdChevronLeft size={32} onClick={() => navigate(-1)} className="hover" />
           <div className="flex-grow-1 text-capitalize">
             {currentHref.replace('/', ' ').replaceAll("/", ' / ')}
           </div>
