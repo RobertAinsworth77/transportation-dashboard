@@ -9,7 +9,13 @@ import UserAccountEntity from "../../../domain/entities/UserAccountEntity";
 const _getUserFromDb = (): Promise<UserEntity> => new Promise<UserEntity>(async (resolve, reject) => {
     try {
         const response = await HostApi.post('/get_admin_user_information', { email: HostApi.getEmail() });
-        const body = { ...response.data[0], user_id: response.data[0].employee_id };
+        
+        if (!response || !response.data || !response.data[0]) {
+            reject(new Error("No user data received"));
+            return;
+        }
+        
+        const body = response.data[0];
         const user = UserHostDto.fromJson(body);
         return resolve(user);
     } catch (error) {
@@ -68,37 +74,29 @@ const AuthRepositoryImpl: AuthRepository = {
         }
     }),
     confirmUser: (email: string, code: string): Promise<void> => new Promise<void>(async (resolve, reject) => {
-        //AWS confirm user
-        console.log('try confirm user');
         const params = {
             ClientId: APP_CLIENT_ID,
             ConfirmationCode: code,
             Username: email
         };
-        console.log('b try ;', params);
         try {
             await CIServiceProvider.confirmSignUp(params).promise();
             resolve();
         }
         catch (error) {
-            console.log('error', error);
             reject();
         }
 
     }),
     sendConfirmCode: (email: string): Promise<void> => new Promise<void>(async (resolve, reject) => {
-        //aws send recovery code
-        console.log('try send recovery code');
         const params = {
             ClientId: APP_CLIENT_ID,
             Username: email
         };
-        console.log('b try ;', params);
         try {
             await CIServiceProvider.resendConfirmationCode(params).promise();
             resolve();
         } catch (error) {
-            console.log('error', error);
             reject();
         }
     }),
@@ -172,7 +170,6 @@ const AuthRepositoryImpl: AuthRepository = {
             await CIServiceProvider.signUp(params).promise();
             resolve();
         } catch (error) {
-            console.log('error', error);
             reject(error);
         }
     }),

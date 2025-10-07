@@ -1,6 +1,9 @@
 import AuthRepositoryImpl from "../../repositories/auth/AuthRepositoryImpl";
 
-const url = "https://2z9nw7bxvh.execute-api.us-east-1.amazonaws.com/dev";
+const url = "https://9wieil5vn5.execute-api.us-east-1.amazonaws.com/dev";
+
+// Clear cached data when switching to dev
+localStorage.clear();
 // axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 const AWS_COGNITO_TOKEN_KEY = "aws_cognito_token";
 const AWS_COGNITO_EMAIL_KEY = "aws_cognito_email";
@@ -11,7 +14,6 @@ const getEmail = () => window.localStorage.getItem(AWS_COGNITO_EMAIL_KEY) ?? "";
 
 const setToken = (token: string) => {
     window.localStorage.setItem(AWS_COGNITO_TOKEN_KEY, token);
-    console.log('token', token)
 };
 const setEmail = (email: string) => window.localStorage.setItem(AWS_COGNITO_EMAIL_KEY, email);
 
@@ -33,7 +35,6 @@ const checkToken = async (callback: Function): Promise<any> => {
         return response;
     } catch (error: any) {
         if (error.message == "The incoming token has expired") {
-            console.log('error', error);
             await refreshToken();
             return await callback();
         }

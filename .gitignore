@@ -25,3 +25,15 @@ yarn-error.log*
 #electron
 electron/dist/
 electron/node_modules/
+
+# Development artifacts
+*.pyc
+__pycache__/
+Dockerfile
+requirements.txt
+config.py
+modify_app.py
+docker-dev-setup.py
+test_secrets.py
+original_app.py
+modified_app.py
