@@ -2,9 +2,6 @@ import AuthRepositoryImpl from "../../repositories/auth/AuthRepositoryImpl";
 
 const url = "https://9wieil5vn5.execute-api.us-east-1.amazonaws.com/dev";
 
-// Clear cached data when switching to dev
-localStorage.clear();
-// axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 const AWS_COGNITO_TOKEN_KEY = "aws_cognito_token";
 const AWS_COGNITO_EMAIL_KEY = "aws_cognito_email";
 
