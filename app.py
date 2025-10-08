@@ -19,6 +19,57 @@ def get_db_connection():
     env = os.environ.get('ENV', 'prod')
     print(f"🔍 Environment detected: {env}")
     
+    if env == 'dev':
+        print("🔧 Using dev database configuration")
+        try:
+            # Get dev database credentials from Secrets Manager
+            print("📡 Retrieving dev database secrets...")
+            
+            session = boto3.session.Session()
+            client = session.client(service_name='secretsmanager', region_name='us-east-1')
+            
+            print("🔍 Getting db_name_dev...")
+            db_name = client.get_secret_value(SecretId='db_name_dev')['SecretString']
+            print(f"✅ DB Name: {db_name}")
+            
+            print("🔍 Getting db_user_dev...")
+            db_user = client.get_secret_value(SecretId='db_user_dev')['SecretString'] 
+            print(f"✅ DB User: {db_user}")
+            
+            print("🔍 Getting db_password_dev...")
+            db_password = client.get_secret_value(SecretId='db_password_dev')['SecretString']
+            print("✅ DB Password retrieved")
+            
+        except Exception as e:
+            print(f"❌ Error retrieving secrets: {str(e)}")
+            raise e
+    else:
+        print("🏭 Using production database configuration")
+        db_name = "itel"
+        db_user = "itel_user"
+        db_password = "Itel2022!"
+    
+    # Database connection parameters
+    server = 'itel-db-server.database.windows.net'
+    port = '1433'
+    
+    print(f"🔗 Connecting to: {server}:{port}")
+    print(f"🗄️ Database: {db_name}")
+    print(f"👤 User: {db_user}")
+    
+    try:
+        # Create connection string for Azure SQL Database
+        connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server},{port};DATABASE={db_name};UID={db_user};PWD={db_password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
+        print("🔌 Attempting database connection...")
+        
+        connection = pyodbc.connect(connection_string)
+        print("✅ Database connection successful!")
+        return connection
+        
+    except Exception as e:
+        print(f"❌ Database connection failed: {str(e)}")
+        raise e
+    
     # Initialize secrets manager client
     secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
     
