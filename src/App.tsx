@@ -2,12 +2,18 @@ import './App.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-phone-input-2/lib/style.css'
+import { useEffect } from 'react';
 import DepenedencyInjectorImpl from './di/DependencyInjection';
 import DependencyInjectionProvider from './di/provider/DependencyInjectionProvider';
 import RoutesComponent from './ui/routes/RoutesComponent';
 
 function App() {
   const di = DepenedencyInjectorImpl;
+  
+  // useEffect(() => {
+  //   localStorage.clear();
+  // }, []);
+  
   return (
     <di.providers.user.Provider>
       <di.providers.languague.Provider>
