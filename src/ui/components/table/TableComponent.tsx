@@ -20,23 +20,133 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
   const navigate = useNavigate();
 
   const [_orderBy, _setOrderBy] = useState<OrdeByFilterEntity | undefined>(defaultOrderBy);
+  const [sortedData, setSortedData] = useState<any[] | undefined>(data);
+
+  useEffect(() => {
+    setSortedData(data);
+  }, [data]);
 
   const _handleChangeFilter = (keyName: string) => {
     let _tempOrderBy: OrdeByFilterEntity;
     if (_orderBy == undefined) _tempOrderBy = { keyName, isDesc: false };
     else if (_orderBy.keyName == keyName) _tempOrderBy = { ..._orderBy, isDesc: !_orderBy.isDesc };
     else _tempOrderBy = { keyName, isDesc: false };
-    const data = getValues();
+    
     _setOrderBy(_tempOrderBy);
-    searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _tempOrderBy);
-    clearTimeout(_timerTap);
-
+    
+    // Apply filters and sorting
+    if (data) {
+      const formData = getValues();
+      let filtered = [...data];
+      
+      // Apply status filter
+      if (formData.statusFilter) {
+        filtered = filtered.filter(item => 
+          item.state?.toLowerCase() === formData.statusFilter.toLowerCase()
+        );
+      }
+      
+      // Apply route filter
+      if (formData.routeFilter) {
+        filtered = filtered.filter(item => 
+          item.route?.name === formData.routeFilter
+        );
+      }
+      
+      // Apply search filter
+      if (formData.search) {
+        const searchTerm = formData.search.toLowerCase();
+        filtered = filtered.filter(item => 
+          Object.values(item).some(value => 
+            String(value).toLowerCase().includes(searchTerm)
+          )
+        );
+      }
+      
+      // Apply sorting
+      const sorted = filtered.sort((a, b) => {
+        const aValue = _getData(a, keyName);
+        const bValue = _getData(b, keyName);
+        
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
+        
+        if (aValue instanceof Date && bValue instanceof Date) {
+          return _tempOrderBy.isDesc ? bValue.getTime() - aValue.getTime() : aValue.getTime() - bValue.getTime();
+        }
+        
+        const aStr = String(aValue).toLowerCase();
+        const bStr = String(bValue).toLowerCase();
+        
+        if (aStr < bStr) return _tempOrderBy.isDesc ? 1 : -1;
+        if (aStr > bStr) return _tempOrderBy.isDesc ? -1 : 1;
+        return 0;
+      });
+      
+      setSortedData(sorted);
+    }
   }
 
   let _timerTap: any;
   const _handleChangeText = () => {
     clearTimeout(_timerTap);
-    _timerTap = setTimeout(() => onSubmit(getValues()), 1000);
+    _timerTap = setTimeout(() => {
+      // Apply filters without server call
+      if (data) {
+        const formData = getValues();
+        let filtered = [...data];
+        
+        // Apply status filter
+        if (formData.statusFilter) {
+          filtered = filtered.filter(item => 
+            item.state?.toLowerCase() === formData.statusFilter.toLowerCase()
+          );
+        }
+        
+        // Apply route filter
+        if (formData.routeFilter) {
+          filtered = filtered.filter(item => 
+            item.route?.name === formData.routeFilter
+          );
+        }
+        
+        // Apply search filter
+        if (formData.search) {
+          const searchTerm = formData.search.toLowerCase();
+          filtered = filtered.filter(item => 
+            Object.values(item).some(value => 
+              String(value).toLowerCase().includes(searchTerm)
+            )
+          );
+        }
+        
+        // Apply current sorting if any
+        if (_orderBy) {
+          filtered = filtered.sort((a, b) => {
+            const aValue = _getData(a, _orderBy.keyName);
+            const bValue = _getData(b, _orderBy.keyName);
+            
+            if (aValue == null && bValue == null) return 0;
+            if (aValue == null) return 1;
+            if (bValue == null) return -1;
+            
+            if (aValue instanceof Date && bValue instanceof Date) {
+              return _orderBy.isDesc ? bValue.getTime() - aValue.getTime() : aValue.getTime() - bValue.getTime();
+            }
+            
+            const aStr = String(aValue).toLowerCase();
+            const bStr = String(bValue).toLowerCase();
+            
+            if (aStr < bStr) return _orderBy.isDesc ? 1 : -1;
+            if (aStr > bStr) return _orderBy.isDesc ? -1 : 1;
+            return 0;
+          });
+        }
+        
+        setSortedData(filtered);
+      }
+    }, 300);
   }
   const onSubmit = (data: any) => {
     //change url params 
@@ -105,18 +215,45 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
             Submit
           </button>
         </div>
-        {data == undefined ? <div className='my-3'> <LoadingComponent /> </div> : data.length <= 0 ? <div className='col-12 my-3'><NotResultsComponent /></div> : <>
+        {/* Filter Row */}
+        <div className="col-12 mb-3">
+          <div className="row g-2">
+            <div className="col-auto">
+              <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
+                setValue('statusFilter', e.target.value);
+                _handleChangeText();
+              }}>
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="in progress">In Progress</option>
+              </select>
+            </div>
+            <div className="col-auto">
+              <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
+                setValue('routeFilter', e.target.value);
+                _handleChangeText();
+              }}>
+                <option value="">All Routes</option>
+                {data && Array.from(new Set(data.map(item => item.route?.name).filter(Boolean))).map(routeName => (
+                  <option key={routeName} value={routeName}>{routeName}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+        {sortedData == undefined ? <div className='my-3'> <LoadingComponent /> </div> : sortedData.length <= 0 ? <div className='col-12 my-3'><NotResultsComponent /></div> : <>
           <div className="col-12 my-4" style={{ overflowX: 'auto' }}>
             <table className="table table-striped">
               <thead>
                 <tr>
-                  {columns.map((column, index) => <th scope='col' key={index}> {column.name}</th>)}
-                  {/* {columns.map((column, index) => <th scope='col' className='hover' onClick={() => _handleChangeFilter(column.keyName)} key={index}> {_orderBy?.keyName == column.keyName ? (_orderBy.isDesc ? <MdArrowDropDown /> : <MdArrowDropUp />) : ''} {column.name}</th>)} */}
+                  {/* {columns.map((column, index) => <th scope='col' key={index}> {column.name}</th>)} */}
+                  {columns.map((column, index) => <th scope='col' className='hover' onClick={() => _handleChangeFilter(column.keyName)} key={index}> {_orderBy?.keyName == column.keyName ? (_orderBy.isDesc ? <MdArrowDropDown /> : <MdArrowDropUp />) : ''} {column.name}</th>)}
                   {handleEdit || handleDelete ? <th scope='col'></th> : ''}
                 </tr>
               </thead>
               <tbody>
-                {data.map((row, index) => <tr key={index}>
+                {sortedData.map((row, index) => <tr key={index}>
                   {columns.map((column, indexCol) => <td scope='row' key={indexCol} onClick={() => handleRowClick?.(row)} className={handleRowClick != undefined ? 'hover' : ''}>
                     {_parse(row, column.keyName)}
                   </td>)}

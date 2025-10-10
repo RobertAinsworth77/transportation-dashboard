@@ -2952,6 +2952,17 @@ def admin_get_trips(event, context):
         page = event.get('page')
 
         search_word = event.get('search_word')
+        
+        order_by_key_name = event.get('order_by_key_name') or 'trip_id'
+        order_by_is_desc = event.get('order_by_is_desc')
+        if order_by_is_desc is None:
+            order_by_is_desc = True
+        order_direction = 'DESC' if order_by_is_desc else 'ASC'
+        
+        # Ensure safe column names to prevent SQL injection
+        valid_columns = ['trip_id', 'date_begin', 'date_end', 'status', 'driver_id', 'route_id']
+        if order_by_key_name not in valid_columns:
+            order_by_key_name = 'trip_id'
 
         ##
 
@@ -2996,8 +3007,6 @@ def admin_get_trips(event, context):
                         or CONVERT(VARCHAR(40), a.date_end, 121) LIKE '%{search_word}%'
 
 						GROUP BY a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, b.name, b.last_name, c.vehicle_id,c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description
-
-                        ORDER BY trip_id desc;
 
                 """
 
@@ -3047,7 +3056,7 @@ def admin_get_trips(event, context):
 
                     GROUP BY a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, b.name, b.last_name, c.vehicle_id,c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description
 
-                    ORDER BY trip_id desc
+                    ORDER BY {order_by_key_name} {order_direction}
 
                     OFFSET {items_per_page*(page-1)} ROWS
 

@@ -64,6 +64,18 @@ const fromJson = (json: any): TripEntity => {
 
 const toDBColumName = (keyName: string | undefined): string => {
     switch (keyName) {
+        case 'start_date':
+            return 'date_begin';
+        case 'end_date':
+            return 'date_end';
+        case 'state':
+            return 'status';
+        case 'driver.name':
+            return 'driver_id';
+        case 'route.id':
+            return 'route_id';
+        case 'route.name':
+            return 'route_id';
         case 'date_begin':
             return 'date_begin';
         case 'date_end':
