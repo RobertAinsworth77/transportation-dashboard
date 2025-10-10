@@ -49,10 +49,20 @@ const AddTripPage = () => {
     }
 
     const _searchBusses = async (word: string) => {
-        console.log('seaerch busses');
+        console.log('🚌 Searching busses with word:', word);
         const response = await di.useCases.searchBusesByNameUseCase?.call(word);
-        console.log('response drivers get', response);
+        console.log('🚌 Raw bus response:', response);
+        console.log('🚌 Number of buses received:', response?.length);
+        response?.forEach((bus, index) => {
+            console.log(`🚌 Bus ${index + 1}:`, {
+                id: bus.id,
+                plate: bus.plate,
+                capacity: bus.capacity,
+                company: bus.company
+            });
+        });
         setBusses(response);
+        console.log('🚌 Buses set in state:', response?.length);
     }
 
     const _searchSites = async (word: string) => {
@@ -205,7 +215,21 @@ const AddTripPage = () => {
 
     return <div className="add_trip_page">
         <h5>{i18n(id != null ? KeyWordLocalization.AddTripPageTitleEdit : KeyWordLocalization.AddTripPageTitleCreate)}</h5>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        
+        {/* Loading indicator for edit mode */}
+        {id != null && !loaded && (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
+                <div className="text-center">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2 text-muted">Loading trip data...</p>
+                </div>
+            </div>
+        )}
+        
+        {/* Form - hidden while loading in edit mode */}
+        <form onSubmit={handleSubmit(onSubmit)} style={{ display: (id != null && !loaded) ? 'none' : 'block' }}>
             <div className="w-100">
                 <div className="row">
                     <div className="col-lg-6">
@@ -240,7 +264,11 @@ const AddTripPage = () => {
                             </div>
                             <div className="col-12 col-md-6 mb-3">
                                 <AutoCompleteComponent required onSearch={_searchBusses} errors={errors} label={i18n(KeyWordLocalization.TripEntityBus)} keyName="bus" onChange={setValue}
-                                    register={register} watch={watch} options={busses.map((bus) => { return { label: bus.plate, id: bus } })} />
+                                    register={register} watch={watch} options={busses.map((bus) => { 
+                                        const label = `${bus.plate || 'Unknown'} - ${bus.capacity || 0} seats (${bus.company || 'Unknown'})`;
+                                        console.log('🚌 Bus option created:', { busId: bus.id, label, plate: bus.plate });
+                                        return { label, id: bus };
+                                    })} />
                             </div>
                             <div className="col-12 mb-3">
                                 <AutoCompleteComponent required onSearch={_searchRoutes} errors={errors} label={i18n(KeyWordLocalization.TripEntityRoute)} keyName="route" onChange={setValue}

@@ -7,13 +7,20 @@ import Validators from '../../../utils/Validators';
 
 const AutoCompleteComponent: FC<AutoCompleteProps> = ({ errors, keyName, label, register, options, onChange, watch, onSearch, required, disabled }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [showAllOptions, setShowAllOptions] = useState<boolean>(false);
   const selected = watch(keyName);
 
   let _timerTap: any;
   const _handleChangeText = (data: string) => {
     clearTimeout(_timerTap);
     setIsLoading(true);
-    _timerTap = setTimeout(() => _handleSearch(data), 2000);
+    // If user clears the field or types very little, show all options
+    if (data.length <= 2) {
+      _timerTap = setTimeout(() => _handleSearch(""), 100);
+    } else {
+      // Only filter when user types 3+ characters
+      _timerTap = setTimeout(() => _handleSearch(data), 300);
+    }
   }
 
   const _handleSearch = async (word: string) => {
@@ -27,18 +34,10 @@ const AutoCompleteComponent: FC<AutoCompleteProps> = ({ errors, keyName, label, 
   }
 
   const _hancleChangeSelected = async () => {
-    if (selected?.id == undefined) {
-      await _handleSearch("");
-    }
-    else {
-      const option = options.filter((option) => option.id.id == selected.id);
-      if (option.length == 0) {
-        console.log('trata de ;lamar');
-        await _handleSearch(selected.name);
-        // console.log('selected asa', selected, 'options', options);
-        // _handlePickOption(options.filter((option) => option.id.id == selected.id));
-      }
-    }
+    // Always load all options initially
+    setIsLoading(true);
+    await _handleSearch("");
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -54,10 +53,33 @@ const AutoCompleteComponent: FC<AutoCompleteProps> = ({ errors, keyName, label, 
       disabled={disabled}
       onInputChange={_handleChangeText}
       onChange={_handlePickOption}
-      id="type-ahead-add-driver"
+      onFocus={() => {
+        // Show all options when user clicks/focuses the field
+        console.log('🔍 AutoComplete focused, showing all options');
+        setShowAllOptions(true);
+        setIsLoading(true);
+        _handleSearch("").then(() => setIsLoading(false));
+      }}
+      onBlur={() => {
+        // Reset filtering when user leaves the field
+        setShowAllOptions(false);
+      }}
+      filterBy={(option: any, props: any) => {
+        // When showAllOptions is true, don't filter anything
+        if (showAllOptions) {
+          return true;
+        }
+        // Default filtering behavior - handle both string and object options
+        const optionText = typeof option === 'string' ? option : option.label || '';
+        return optionText.toLowerCase().includes(props.text.toLowerCase());
+      }}
+      id={`type-ahead-${keyName}`}
       placeholder={label}
       selected={options.filter((option) => selected != undefined ? option.id.id == selected.id : false)}
-      isLoading={isLoading} />
+      isLoading={isLoading}
+      minLength={0}
+      defaultOpen={false}
+      allowNew={false} />
     <input type="hidden"  {...register(keyName, Validators({ required: required }))} />
     <ErrorMessage as="aside" errors={errors} name={keyName} />
   </div>
