@@ -56,7 +56,6 @@ const TripRepositoryImpl: TripRepository = {
             };
             resolve(tripMapped);
         } catch (error) {
-            console.log('error', error);
             reject(error);
         }
     }),
@@ -71,11 +70,9 @@ const TripRepositoryImpl: TripRepository = {
     update: (trip: TripEntity): Promise<void> => new Promise<void>(async (resolve, reject) => {
         let body = TripHostDto.toJson(trip);
         let route = trip.route != undefined ? RouteHostDto.toJson(trip.route) : {};
-        console.log('route of route host', route, trip.route);
         body = { ...body, ...route, site_id: trip.route?.site?.id };
         if (body.route_id == 0 || body.route_id == undefined)
             body.route_id = "";
-        console.log('llega aqui el tema del body', body, { ...body, ...body.route });
         await HostApi.put(`/dashboard/trips?id=${trip.id}`, body).then((response) => {
             resolve();
         }).catch((error) => reject(error));
@@ -87,7 +84,6 @@ const TripRepositoryImpl: TripRepository = {
         body = { ...body, ...route };
         if (body.route_id == 0 || body.route_id == undefined)
             body.route_id = "";
-        console.log('llega aqui el tema del body', body, { ...body, ...body.route });
         try {
             await HostApi.post('/dashboard/trips', body);
             resolve();

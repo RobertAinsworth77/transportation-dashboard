@@ -32,7 +32,6 @@ const TripPage: FC<{}> = () => {
         setCurrentPage(page);
         setTrips(undefined);
         setTotalResults(undefined);
-        console.log('getted search word', word)
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
         setOrderBy(_orderBy);

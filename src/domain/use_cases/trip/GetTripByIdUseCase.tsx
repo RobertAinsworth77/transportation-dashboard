@@ -16,7 +16,6 @@ export default class GetTripByIdUseCase {
             const response = await this._tripRepository.getById(id);
             
             // Make passengers call non-blocking with timeout
-            console.log('🚀 Starting passengers call for trip:', id);
             const passengersPromise = Promise.race([
                 this._tripRepository.getPassengersByTripId(id),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Passengers timeout')), 5000))
@@ -24,20 +23,15 @@ export default class GetTripByIdUseCase {
             
             try {
                 const passengersResponse = await passengersPromise as EmployeeEntity[];
-                console.log('✅ Passengers data received:', passengersResponse);
                 response.passengers = passengersResponse.filter((passenger: EmployeeEntity) => passenger.passengerStatus == EmployeePassengerStatus.COMPLETED);
                 response.bookings = passengersResponse.filter((passenger: EmployeeEntity) => passenger.passengerStatus == EmployeePassengerStatus.PENDING);
-                console.log('📊 Filtered passengers:', response.passengers.length, 'bookings:', response.bookings.length);
             } catch (error) { 
-                console.log('⚠️ Passengers call failed or timed out:', error);
-                console.log('🔄 Continuing without passenger data...');
                 response.passengers = [];
                 response.bookings = [];
             }
             
             return resolve(response);
         } catch (_) {
-            console.log('error in get trip by id use case', _);
             return reject();
         }
     });

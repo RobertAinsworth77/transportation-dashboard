@@ -4494,28 +4494,30 @@ def admin_add_trip(event, context):
 def admin_edit_trip(event, context):
 
     try:
+        # Extract parameters from body if present, otherwise from root level
+        body = event.get('body', {})
+        
+        trip_id = event.get('trip_id') or body.get('trip_id')
 
-        trip_id = event.get('trip_id')
+        vehicle_id = event.get('bus_id') or event.get('vehicle_id') or body.get('bus_id') or body.get('vehicle_id')
 
-        vehicle_id = event.get('vehicle_id')
+        route_id = event.get('route_id') or body.get('route_id')
 
-        route_id = event.get('route_id')
+        driver_id = event.get('driver_id') or body.get('driver_id')
 
-        driver_id = event.get('driver_id')
-
-        date_begin = event.get('date_begin')
+        date_begin = event.get('date_begin') or body.get('date_begin')
 
         #Route Creation
 
-        route_name = event.get('route_name')
+        route_name = event.get('route_name') or body.get('route_name')
 
-        route_description = event.get('route_description')
+        route_description = event.get('route_description') or body.get('route_description')
 
-        start_point = event.get('start_point')
+        start_point = event.get('start_point') or body.get('start_point')
 
-        end_point = event.get('end_point')
+        end_point = event.get('end_point') or body.get('end_point')
 
-        site_id = event.get('site_id')
+        site_id = event.get('site_id') or body.get('site_id')
 
         conn = get_db_connection()
 

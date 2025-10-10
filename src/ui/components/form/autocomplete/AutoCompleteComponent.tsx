@@ -29,7 +29,6 @@ const AutoCompleteComponent: FC<AutoCompleteProps> = ({ errors, keyName, label, 
   }
 
   const _handlePickOption = (data: any) => {
-    console.log('picked autocomplete', keyName, data);
     onChange(keyName, data?.[0]?.id ?? undefined);
   }
 
@@ -55,7 +54,6 @@ const AutoCompleteComponent: FC<AutoCompleteProps> = ({ errors, keyName, label, 
       onChange={_handlePickOption}
       onFocus={() => {
         // Show all options when user clicks/focuses the field
-        console.log('🔍 AutoComplete focused, showing all options');
         setShowAllOptions(true);
         setIsLoading(true);
         _handleSearch("").then(() => setIsLoading(false));

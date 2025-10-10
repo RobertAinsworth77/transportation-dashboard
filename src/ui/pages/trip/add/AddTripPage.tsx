@@ -49,20 +49,8 @@ const AddTripPage = () => {
     }
 
     const _searchBusses = async (word: string) => {
-        console.log('🚌 Searching busses with word:', word);
         const response = await di.useCases.searchBusesByNameUseCase?.call(word);
-        console.log('🚌 Raw bus response:', response);
-        console.log('🚌 Number of buses received:', response?.length);
-        response?.forEach((bus, index) => {
-            console.log(`🚌 Bus ${index + 1}:`, {
-                id: bus.id,
-                plate: bus.plate,
-                capacity: bus.capacity,
-                company: bus.company
-            });
-        });
         setBusses(response);
-        console.log('🚌 Buses set in state:', response?.length);
     }
 
     const _searchSites = async (word: string) => {
@@ -71,7 +59,6 @@ const AddTripPage = () => {
     }
 
     const _searchRoutes = async (word: string) => {
-        console.log('search busses')
         const response = await di.useCases.searchRoutesByNameUseCase?.call(word);
         const noRoute: RouteEntity = {
             id: 0, name: i18n(KeyWordLocalization.TripPageNoRoute),
@@ -85,12 +72,10 @@ const AddTripPage = () => {
     }
 
     const _handleChangeDriver = (driver: DriverEntity) => {
-        console.log('handlecheange driver', driver);
         setValue("bus", driver?.defaultBus);
     }
 
     const _handleChangeRoute = (route: RouteEntity) => {
-        console.log('call to change route', route);
         setValue('start_point', route?.start_point);
         setValue('end_point', route?.end_point);
         setValue('startPoint', route?.start_point != null ? `${route.start_point.lat},${route.start_point.lng}` : null);
@@ -137,7 +122,6 @@ const AddTripPage = () => {
 
     const onSubmit = (data: any) => id != undefined ? _updateTrip(data) : _createTrip(data);
     const _updateTrip = async (data: any) => {
-        console.log('data', data);
         const tempTrip: TripEntity = {
             ...data, id: parseInt(id!),
             site_id: data.site.id,
@@ -163,7 +147,6 @@ const AddTripPage = () => {
         navigate(`${routesRouter.trip.relativePath}/${id}`);
     };
     const _createTrip = async (data: any) => {
-        console.log('data create trip', data);
         const tempTrip: TripEntity = {
             ...data,
             id: 0,
@@ -179,7 +162,6 @@ const AddTripPage = () => {
             tempTrip.route.start_point = data.start_point;
             tempTrip.route.end_point = data.end_point;
         }
-        console.log('temptrip', tempTrip);
         try {
             await di.useCases.createTripUseCase?.call(tempTrip);
             addToast(i18n(KeyWordLocalization.SavedSuccessfully), 'success', null);
@@ -266,7 +248,6 @@ const AddTripPage = () => {
                                 <AutoCompleteComponent required onSearch={_searchBusses} errors={errors} label={i18n(KeyWordLocalization.TripEntityBus)} keyName="bus" onChange={setValue}
                                     register={register} watch={watch} options={busses.map((bus) => { 
                                         const label = `${bus.plate || 'Unknown'} - ${bus.capacity || 0} seats (${bus.company || 'Unknown'})`;
-                                        console.log('🚌 Bus option created:', { busId: bus.id, label, plate: bus.plate });
                                         return { label, id: bus };
                                     })} />
                             </div>

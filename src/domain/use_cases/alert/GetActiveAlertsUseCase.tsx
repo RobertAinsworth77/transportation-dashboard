@@ -20,15 +20,10 @@ export default class GetActiveAlertsUseCase {
 
     public call = async () => new Promise<AlertEntity[]>(async (resolve, reject) => {
         try {
-            console.log('call get alerts');
             const response = await this._alertRepository.getActiveAlerts();
-            console.log('call response', response);
             if (response) {
                 const alertsCopy = this._alertProvider.contextType?.alerts ?? [];
-                console.log('alertsCopy',alertsCopy);
-                console.log('llega');
                 response.forEach((alert: AlertEntity) => {
-                    console.log('for each',alertsCopy.find((alertCopy: AlertEntity) => alertCopy.id === alert.id))
                     if(alertsCopy.find((alertCopy: AlertEntity) => alertCopy.id === alert.id)) return;
                     const message = this._languageProvider.contextType?.i18n('EmergencyOption' + alert.name) ?? '';
                     this._modalsProvider.contextType?.addToast(message, 'alert', alert);
