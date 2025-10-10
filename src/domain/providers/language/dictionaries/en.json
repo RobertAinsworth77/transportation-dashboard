@@ -163,7 +163,7 @@
     "TripsPageDeleteTrip": "Delete",
     "TripPageNoRoute": "New Route",
 
-    "DeleteTripDescription": "Deleting an trip is irreversible, this will delete trip's credentials, personal data and info. \nIf you are sure please input \"CONFIRM\" in the next field",
+    "DeleteTripDescription": "Are you sure you want to delete this trip? This action cannot be undone.",
     "DeleteTripPlaceholder": "Are you sure?, input \"CONFIRM\"",
 
     "DeleteRouteDescription": "Deleting an route is irreversible, this will delete route's credentials, personal data and info. \nIf you are sure please input \"CONFIRM\" in the next field",

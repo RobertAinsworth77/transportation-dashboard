@@ -14,34 +14,22 @@ const DeleteTripModalComponent: FC<DeleteTripModalComponentProps> = ({ done }) =
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
   const { closeModalCustom } = useContext(ModalsContext) as ModalsContextType;
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
-
-  const _handleDelete = (_: any) => done();
+  const _handleDelete = () => done();
 
   return <div className="delete_trip_modal_component">
-    <form onSubmit={handleSubmit(_handleDelete)}>
-      <div className="row">
-        <div className={`col-12 form-group ${errors.confirm ? 'error' : ''}`}>
-          <label>{i18n(KeyWordLocalization.DeleteTripDescription)}</label>
-          <input type="confirm" {...register("confirm", Validators({
-            required: true, validate: (val: string) => {
-              if (val != i18n(KeyWordLocalization.Confirm)) {
-                return i18n(KeyWordLocalization.ConfirmNotMatch);
-              }
-            },
-          }))} className="form-control my-2" placeholder={i18n(KeyWordLocalization.DeleteTripPlaceholder)} />
-          <ErrorMessage as="aside" errors={errors} name="confirm" />
-        </div>
-        <div className="d-flex flex-md-row flex-column justify-content-center justify-content-md-end">
-          <button className="col-lg-4 btn btn-light m-md-2" type='button' onClick={closeModalCustom}>
-            {i18n(KeyWordLocalization.Cancel)}
-          </button>
-          <button className="col-12 col-lg-4 btn btn-danger my-2" type='submit'>
-            {i18n(KeyWordLocalization.Confirm)}
-          </button>
-        </div>
+    <div className="row">
+      <div className="col-12 mb-4">
+        <p>{i18n(KeyWordLocalization.DeleteTripDescription)}</p>
       </div>
-    </form >
+      <div className="d-flex flex-md-row flex-column justify-content-center justify-content-md-end">
+        <button className="col-lg-4 btn btn-light m-md-2" type='button' onClick={closeModalCustom}>
+          {i18n(KeyWordLocalization.Cancel)}
+        </button>
+        <button className="col-12 col-lg-4 btn btn-danger my-2" type='button' onClick={_handleDelete}>
+          {i18n(KeyWordLocalization.Delete)}
+        </button>
+      </div>
+    </div>
   </div >
 };
 

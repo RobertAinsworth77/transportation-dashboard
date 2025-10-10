@@ -260,7 +260,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
                   {handleEdit || handleDelete ? <td scope='row'> <div className="d-flex align-items-center justify-content-end pt-2 h-100">
                     &nbsp;
                     {handleEdit && row.canEdit !== false && <button className='btn-outline-secondary btn me-3' type='button' onClick={() => handleEdit(row)}><MdEdit className='mb-1' /> {i18n(KeyWordLocalization.Edit)}</button>}
-                    {/* {handleDelete && row.canDelete !== false && <button className='btn btn-outline-secondary' type='button' onClick={() => handleDelete(row)}><MdDelete className='mb-1' /> Delete</button>} */}
+                    {handleDelete && row.canDelete !== false && <button className='btn btn-outline-secondary' type='button' onClick={() => handleDelete(row)}><MdDelete className='mb-1' /> {i18n(KeyWordLocalization.Delete)}</button>}
                   </div></td> : ''}
                 </tr>)}
               </tbody>
