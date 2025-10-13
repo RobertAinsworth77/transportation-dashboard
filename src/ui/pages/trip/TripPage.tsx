@@ -78,7 +78,8 @@ const TripPage: FC<{}> = () => {
             handleRowClick={_handleRowClick}
             handleAdd={_handleAdd}
             handleEdit={_handleEdit}
-            handleDelete={_handleDelete} />
+            handleDelete={_handleDelete}
+            showFilters={true} />
     </div>
 }
 

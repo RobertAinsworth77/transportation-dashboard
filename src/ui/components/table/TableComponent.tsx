@@ -13,7 +13,7 @@ import NotResultsComponent from '../notResults/NotResultsComponent';
 import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 import { useNavigate } from 'react-router-dom';
 
-const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title, defaultOrderBy }) => {
+const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title, defaultOrderBy, showFilters }) => {
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
   const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm();
   const formRef = useRef<HTMLInputElement>(null);
@@ -215,33 +215,35 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
             Submit
           </button>
         </div>
-        {/* Filter Row */}
-        <div className="col-12 mb-3">
-          <div className="row g-2">
-            <div className="col-auto">
-              <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
-                setValue('statusFilter', e.target.value);
-                _handleChangeText();
-              }}>
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="in progress">In Progress</option>
-              </select>
-            </div>
-            <div className="col-auto">
-              <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
-                setValue('routeFilter', e.target.value);
-                _handleChangeText();
-              }}>
-                <option value="">All Routes</option>
-                {data && Array.from(new Set(data.map(item => item.route?.name).filter(Boolean))).map(routeName => (
-                  <option key={routeName} value={routeName}>{routeName}</option>
-                ))}
-              </select>
+        {/* Filter Row - Only show for trips */}
+        {showFilters && (
+          <div className="col-12 mb-3">
+            <div className="row g-2">
+              <div className="col-auto">
+                <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
+                  setValue('statusFilter', e.target.value);
+                  _handleChangeText();
+                }}>
+                  <option value="">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                  <option value="in progress">In Progress</option>
+                </select>
+              </div>
+              <div className="col-auto">
+                <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
+                  setValue('routeFilter', e.target.value);
+                  _handleChangeText();
+                }}>
+                  <option value="">All Routes</option>
+                  {data && Array.from(new Set(data.map(item => item.route?.name).filter(Boolean))).map(routeName => (
+                    <option key={routeName} value={routeName}>{routeName}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         {sortedData == undefined ? <div className='my-3'> <LoadingComponent /> </div> : sortedData.length <= 0 ? <div className='col-12 my-3'><NotResultsComponent /></div> : <>
           <div className="col-12 my-4" style={{ overflowX: 'auto' }}>
             <table className="table table-striped">

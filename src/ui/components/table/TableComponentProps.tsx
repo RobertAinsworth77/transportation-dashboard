@@ -18,6 +18,7 @@ interface TableComponentProps {
     handleEdit?: (row: any) => Promise<void> | undefined;
     handleDelete?: (row: any) => Promise<void> | undefined;
     handleRowClick?: (row: any) => Promise<void> | undefined;
+    showFilters?: boolean;
 }
 
 export default TableComponentProps;
