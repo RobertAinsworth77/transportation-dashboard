@@ -5,6 +5,7 @@ import DefaultRepository from "../../domain/repositories/DefaultRepository";
 import DriverRepository from "../../domain/repositories/DriverRepository";
 import EmployeeRepository from "../../domain/repositories/EmployeeRepository";
 import RouteRepository from "../../domain/repositories/RouteRepository";
+import RouteAlignmentRepository from "../../domain/repositories/RouteAlignmentRepository";
 import SiteRepository from "../../domain/repositories/SiteRepository";
 import TripRepository from "../../domain/repositories/TripRepository";
 import UpdateAppRepository from "../../domain/repositories/UpdateAppRepository";
@@ -18,6 +19,7 @@ interface DIRepositories {
     driverRepository: DriverRepository;
     employeeRepository: EmployeeRepository;
     routeRepository: RouteRepository;
+    routeAlignmentRepository: RouteAlignmentRepository;
     tripRepository: TripRepository;
     siteRepository: SiteRepository;
     updateAppRepository: UpdateAppRepository;

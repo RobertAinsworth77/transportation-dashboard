@@ -1,6 +1,8 @@
 from config import connstring
 
 import json
+import datetime
+import decimal
 
 import os
 import boto3
@@ -9,6 +11,17 @@ import pandas as pd
 import pyodbc
 
 import math
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (datetime.datetime, datetime.date)):
+            return obj.isoformat()
+        elif isinstance(obj, decimal.Decimal):
+            return float(obj)
+        elif pd.isna(obj):
+            return None
+        return super().default(obj)
 
 
 
@@ -121,7 +134,30 @@ def handler(event, context):
 
     print("Event received:", json.dumps(event))
 
-    if "lambda_function_name" in event:
+    # Handle API Gateway events
+    if "httpMethod" in event and "resource" in event:
+        print("API Gateway event detected")
+        
+        # Route based on resource path
+        resource = event.get("resource", "")
+        method = event.get("httpMethod", "")
+        
+        if resource == "/dashboard/route-alignments" and method == "GET":
+            print("Routing to admin_get_route_alignments")
+            return admin_get_route_alignments(event, context)
+        else:
+            return {
+                "statusCode": 404,
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+                    "Access-Control-Allow-Methods": "GET,OPTIONS"
+                },
+                "body": json.dumps({"message": f"Resource {resource} with method {method} not found"})
+            }
+
+    # Handle direct Lambda invocation
+    elif "lambda_function_name" in event:
 
         func_name = event["lambda_function_name"]
 
@@ -5930,6 +5966,120 @@ def search_multiple_employees_by_hrm(event, context):
 
 
 
+def admin_get_route_alignments(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Handle both direct invocation and API Gateway events
+        if 'queryStringParameters' in event and event['queryStringParameters']:
+            params = event['queryStringParameters']
+            search_word = params.get('search_word', '')
+            page = int(params.get('page', 1))
+            items_per_page = int(params.get('items_per_page', 20))
+            order_by_key_name = params.get('order_by_key_name', 'id')
+            order_by_is_desc = params.get('order_by_is_desc', 'false').lower() == 'true'
+        else:
+            # Direct invocation
+            search_word = event.get('search_word', '')
+            page = int(event.get('page', 1))
+            items_per_page = int(event.get('items_per_page', 20))
+            order_by_key_name = event.get('order_by_key_name', 'id')
+            order_by_is_desc = event.get('order_by_is_desc', 'false').lower() == 'true'
+        
+        # Calculate offset
+        offset = (page - 1) * items_per_page
+        
+        # Build ORDER BY clause
+        order_direction = 'DESC' if order_by_is_desc else 'ASC'
+        order_clause = f"ORDER BY {order_by_key_name} {order_direction}"
+        
+        # Build WHERE clause for search
+        where_clause = ""
+        if search_word:
+            where_clause = f"WHERE country LIKE '%{search_word}%' OR city LIKE '%{search_word}%' OR community LIKE '%{search_word}%'"
+        
+        # Get total count
+        count_query = f"""
+            SELECT COUNT(*) as total_count 
+            FROM employee_app.route_alignment 
+            {where_clause}
+        """
+        
+        count_df = pd.read_sql_query(count_query, conn)
+        total_rows = int(count_df.iloc[0]['total_count'])
+        total_pages = math.ceil(total_rows / items_per_page)
+        
+        # Get paginated data
+        data_query = f"""
+            SELECT id, country, city, community, created_date, is_active
+            FROM employee_app.route_alignment 
+            {where_clause}
+            {order_clause}
+            OFFSET {offset} ROWS 
+            FETCH NEXT {items_per_page} ROWS ONLY
+        """
+        
+        print(data_query)
+        
+        df = pd.read_sql_query(data_query, conn)
+        
+        # Convert DataFrame to dict and handle datetime serialization
+        records = df.to_dict("records")
+        for record in records:
+            for key, value in record.items():
+                if pd.isna(value):
+                    record[key] = None
+                elif hasattr(value, 'isoformat'):  # datetime objects
+                    record[key] = value.isoformat()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Route alignments were successfully obtained",
+            "route_alignments": records,
+            "current_page": page,
+            "total_pages": total_pages,
+            "total_rows": total_rows,
+            "orderBy": {
+                "keyName": order_by_key_name,
+                "isDesc": order_by_is_desc
+            }
+        }
+        
+        # Return proper API Gateway response format
+        if 'queryStringParameters' in event:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS'
+                },
+                'body': json.dumps(body, cls=CustomJSONEncoder)
+            }
+        else:
+            return body
+        
+    except Exception as e:
+        error_body = {
+            "statusCode": 400,
+            "message": f"ERROR while getting route alignments. {e}",
+            "route_alignments": []
+        }
+        
+        if 'queryStringParameters' in event:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS'
+                },
+                'body': json.dumps(error_body, cls=CustomJSONEncoder)
+            }
+        else:
+            return error_body
+
+
 def new_api_sites(event, context):
 
     try:
@@ -6140,7 +6290,9 @@ lambdas_functions = {
 
     "search_multiple_employees_by_hrm": search_multiple_employees_by_hrm,
 
-    "new_api_sites": new_api_sites
+    "new_api_sites": new_api_sites,
+
+    "admin_get_route_alignments": admin_get_route_alignments
 
 
 

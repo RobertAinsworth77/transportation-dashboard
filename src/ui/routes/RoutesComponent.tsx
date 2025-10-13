@@ -31,6 +31,7 @@ import PeoplePage from "../pages/people/PeoplePage";
 import TransportPage from "../pages/transport/TransportPage";
 import { response as CheckIfUpdateUseCaseResponse } from '../../domain/use_cases/updateApp/CheckIfUpdateUseCase';
 import ShowUpdateComponent from "../components/showUpdate/ShowUpdateComponent";
+import RouteAlignmentPage from "../pages/routeAlignment/RouteAlignmentPage";
 
 const routes = {
     error_404: {
@@ -174,6 +175,13 @@ const routes = {
         component: SitesPage,
         users: [UserEntityRole.admin, UserEntityRole.normal],
     },
+    routeAlignment: {
+        name: 'Route Alignment',
+        path: "/transport/route-alignment",
+        relativePath: "/transport/route-alignment",
+        component: RouteAlignmentPage,
+        users: [UserEntityRole.admin, UserEntityRole.normal],
+    },
 }
 
 const modules = [
@@ -194,6 +202,7 @@ const modules = [
             routes.trips,
             routes.routes,
             routes.sites,
+            routes.routeAlignment,
             routes.busses,
             routes.add_trip,
             routes.add_route,

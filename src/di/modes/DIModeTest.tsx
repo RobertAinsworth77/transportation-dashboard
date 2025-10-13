@@ -8,6 +8,7 @@ import DriverRepositoryTest from "../../data/repositories/driver/DriverRepositor
 import EmployeeRepositoryTest from "../../data/repositories/employee/EmployeeRepositoryTest";
 import UserRepositoryTest from "../../data/repositories/user/UserRepositoryTest";
 import RouteRepositoryTest from "../../data/repositories/route/RouteRepositoryTest";
+import RouteAlignmentRepositoryImpl from "../../data/repositories/RouteAlignmentRepositoryImpl";
 import TripRepositoryTest from "../../data/repositories/trip/TripRepositoryTest";
 import SiteRepositoryTest from "../../data/repositories/site/SiteRepositoryTest";
 import AlertContext from "../../domain/providers/alert/AlertContext";
@@ -28,6 +29,7 @@ const DIModeTest: DependencyInjectionMode = {
         driverRepository: DriverRepositoryTest,
         employeeRepository: EmployeeRepositoryTest,
         routeRepository: RouteRepositoryTest,
+        routeAlignmentRepository: new RouteAlignmentRepositoryImpl(),
         tripRepository: TripRepositoryTest,
         siteRepository: SiteRepositoryTest,
         updateAppRepository: UpdateAppRepositoryImpl,

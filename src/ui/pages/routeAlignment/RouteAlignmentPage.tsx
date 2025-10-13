@@ -1,0 +1,80 @@
+import React, { FC, useContext, useEffect, useState } from 'react';
+import DependencyInjectionContext from '../../../di/provider/DependencyInjectionContext';
+import DependencyInjectionContextType from '../../../di/provider/DependencyInjectionContextType';
+import RouteAlignmentEntity from '../../../domain/entities/RouteAlignmentEntity';
+import KeyWordLocalization from '../../../domain/providers/language/dictionaries/KeyWordLocalization';
+import LanguageContext from '../../../domain/providers/language/LanguageContext';
+import LanguageContextType from '../../../domain/providers/language/LanguageContextType';
+import ModalsContext from '../../../domain/providers/modal/ModalsContext';
+import ModalsContextType from '../../../domain/providers/modal/ModalsContextType';
+import TableComponent from '../../components/table/TableComponent';
+import AddRouteAlignmentModalComponent from './components/add/AddRouteAlignmentModalComponent';
+import './RouteAlignmentPage.scss';
+import RouteAlignmentPageProps from './RouteAlignmentPageProps';
+import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
+
+const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
+  const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
+  const { i18n } = useContext(LanguageContext) as LanguageContextType;
+  const { openModalCustom } = useContext(ModalsContext) as ModalsContextType;
+
+  const [routeAlignments, setRouteAlignments] = useState<RouteAlignmentEntity[] | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number | undefined>(undefined);
+  const [totalResults, setTotalResults] = useState<number | undefined>(undefined);
+  const [searchWord, setSearchWord] = useState<string>('');
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
+  const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
+
+  const _searchRouteAlignments = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
+    setCurrentPage(page);
+    setRouteAlignments(undefined);
+    setTotalResults(undefined);
+    setSearchWord(word);
+    setItemsPerPage(itemsPerPageR);
+    setOrderBy(_orderBy);
+    try {
+      const response = await di.repositories.routeAlignmentRepository?.getFiltredRouteAlignments(word, page, itemsPerPageR, _orderBy);
+      if (response) {
+        setRouteAlignments(response.routeAlignments);
+        setCurrentPage(response.current_page);
+        setTotalPages(response.total_pages);
+        setTotalResults(response.total_rows);
+        setOrderBy(response.orderBy);
+      }
+    } catch (error) {
+      setRouteAlignments([]);
+    }
+  }
+
+  const _handleEdit = async (routeAlignment: RouteAlignmentEntity) => {
+    openModalCustom('lg', 'Edit Route Alignment', <AddRouteAlignmentModalComponent routeAlignment={routeAlignment} done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy)} />)
+  }
+
+  const _handleAdd = async () => {
+    openModalCustom('lg', 'Add Route Alignment', <AddRouteAlignmentModalComponent done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy)} />)
+  }
+
+  useEffect(() => {
+    _searchRouteAlignments('', 1, 20, undefined);
+  }, []);
+
+  return <div className="route_alignment_page bg_1 p-5">
+    <TableComponent title="Route Alignments"
+      columns={[
+        { keyName: 'country', name: 'Country' },
+        { keyName: 'city', name: 'City' },
+        { keyName: 'community', name: 'Community' },
+      ]}
+      data={routeAlignments}
+      searchByWord={_searchRouteAlignments}
+      page={currentPage}
+      totalItems={totalResults}
+      totalPages={totalPages}
+      handleAdd={_handleAdd}
+      handleEdit={_handleEdit}
+    />
+  </div>
+};
+
+export default RouteAlignmentPage;

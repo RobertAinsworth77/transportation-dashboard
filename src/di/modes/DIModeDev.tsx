@@ -22,6 +22,7 @@ import UserRepositoryImpl from "../../data/repositories/user/UserRepositoryImpl"
 import AuthRepositoryImpl from "../../data/repositories/auth/AuthRepositoryImpl";
 import SiteRepositoryImpl from "../../data/repositories/site/SiteRepositoryImpl";
 import RouteRepositoryImpl from "../../data/repositories/route/RouteRepositoryImpl";
+import RouteAlignmentRepositoryImpl from "../../data/repositories/RouteAlignmentRepositoryImpl";
 import TripRepositoryImpl from "../../data/repositories/trip/TripRepositoryImpl";
 import BusRepositoryImpl from "../../data/repositories/bus/BusRepositoryImpl";
 import AlertRepositoryImpl from "../../data/repositories/alert/AlertRepositoryImpl";
@@ -37,6 +38,7 @@ const DIModeDev: DependencyInjectionMode = {
         driverRepository: DriverRepositoryImpl,
         employeeRepository: EmployeeRepositoryImpl,
         routeRepository: RouteRepositoryImpl,
+        routeAlignmentRepository: new RouteAlignmentRepositoryImpl(),
         tripRepository: TripRepositoryImpl,
         siteRepository: SiteRepositoryImpl,
         updateAppRepository: UpdateAppRepositoryImpl,
