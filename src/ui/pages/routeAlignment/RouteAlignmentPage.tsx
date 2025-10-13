@@ -16,7 +16,7 @@ import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity'
 const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
   const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
-  const { openModalCustom } = useContext(ModalsContext) as ModalsContextType;
+  const { openModalCustom, closeModalCustom } = useContext(ModalsContext) as ModalsContextType;
 
   const [routeAlignments, setRouteAlignments] = useState<RouteAlignmentEntity[] | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -51,6 +51,29 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
     openModalCustom('lg', 'Edit Route Alignment', <AddRouteAlignmentModalComponent routeAlignment={routeAlignment} done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
 
+  const _handleDelete = async (routeAlignment: RouteAlignmentEntity) => {
+    const deleteRouteAlignment = async () => {
+      try {
+        await di.repositories.routeAlignmentRepository?.deleteRouteAlignment(routeAlignment.id);
+        closeModalCustom();
+        _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy);
+      } catch (error) {
+        console.error('Error deleting route alignment:', error);
+      }
+    }
+
+    openModalCustom('sm', 'Delete Route Alignment', 
+      <div className="text-center">
+        <p>Are you sure you want to delete this route alignment?</p>
+        <p><strong>{routeAlignment.country} - {routeAlignment.city} - {routeAlignment.community}</strong></p>
+        <div className="d-flex justify-content-center gap-2 mt-3">
+          <button className="btn btn-secondary" onClick={() => closeModalCustom()}>Cancel</button>
+          <button className="btn btn-danger" onClick={deleteRouteAlignment}>Delete</button>
+        </div>
+      </div>
+    )
+  }
+
   const _handleAdd = async () => {
     openModalCustom('lg', 'Add Route Alignment', <AddRouteAlignmentModalComponent done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy)} />)
   }
@@ -73,6 +96,7 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
       totalPages={totalPages}
       handleAdd={_handleAdd}
       handleEdit={_handleEdit}
+      handleDelete={_handleDelete}
     />
   </div>
 };

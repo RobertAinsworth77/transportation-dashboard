@@ -145,13 +145,22 @@ def handler(event, context):
         if resource == "/dashboard/route-alignments" and method == "GET":
             print("Routing to admin_get_route_alignments")
             return admin_get_route_alignments(event, context)
+        elif resource == "/dashboard/route-alignments" and method == "POST":
+            print("Routing to admin_create_route_alignment")
+            return admin_create_route_alignment(event, context)
+        elif resource == "/dashboard/route-alignments/{id}" and method == "PUT":
+            print("Routing to admin_update_route_alignment")
+            return admin_update_route_alignment(event, context)
+        elif resource == "/dashboard/route-alignments/{id}" and method == "DELETE":
+            print("Routing to admin_delete_route_alignment")
+            return admin_delete_route_alignment(event, context)
         else:
             return {
                 "statusCode": 404,
                 "headers": {
                     "Access-Control-Allow-Origin": "*",
                     "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-                    "Access-Control-Allow-Methods": "GET,OPTIONS"
+                    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
                 },
                 "body": json.dumps({"message": f"Resource {resource} with method {method} not found"})
             }
@@ -5964,6 +5973,203 @@ def search_multiple_employees_by_hrm(event, context):
 
     return body
 
+
+
+def admin_update_route_alignment(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Handle both direct invocation and API Gateway events
+        if 'pathParameters' in event and event['pathParameters']:
+            route_alignment_id = event['pathParameters']['id']
+            body_data = json.loads(event.get('body', '{}'))
+        else:
+            # Direct invocation
+            route_alignment_id = event.get('id')
+            body_data = event
+        
+        country = body_data.get('country')
+        city = body_data.get('city')
+        community = body_data.get('community')
+        
+        if not all([route_alignment_id, country, city, community]):
+            raise ValueError("Missing required fields: id, country, city, community")
+        
+        # Update route alignment
+        update_query = """
+            UPDATE employee_app.route_alignment 
+            SET country = ?, city = ?, community = ?
+            WHERE id = ?
+        """
+        
+        cursor = conn.cursor()
+        cursor.execute(update_query, (country, city, community, route_alignment_id))
+        conn.commit()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Route alignment updated successfully"
+        }
+        
+        # Return proper API Gateway response format
+        if 'pathParameters' in event:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(body, cls=CustomJSONEncoder)
+            }
+        else:
+            return body
+        
+    except Exception as e:
+        error_body = {
+            "statusCode": 400,
+            "message": f"ERROR while updating route alignment. {e}"
+        }
+        
+        if 'pathParameters' in event:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(error_body, cls=CustomJSONEncoder)
+            }
+        else:
+            return error_body
+
+
+def admin_delete_route_alignment(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Handle both direct invocation and API Gateway events
+        if 'pathParameters' in event and event['pathParameters']:
+            route_alignment_id = event['pathParameters']['id']
+        else:
+            # Direct invocation
+            route_alignment_id = event.get('id')
+        
+        if not route_alignment_id:
+            raise ValueError("Missing required field: id")
+        
+        # Delete route alignment
+        delete_query = "DELETE FROM employee_app.route_alignment WHERE id = ?"
+        
+        cursor = conn.cursor()
+        cursor.execute(delete_query, (route_alignment_id,))
+        conn.commit()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Route alignment deleted successfully"
+        }
+        
+        # Return proper API Gateway response format
+        if 'pathParameters' in event:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(body, cls=CustomJSONEncoder)
+            }
+        else:
+            return body
+        
+    except Exception as e:
+        error_body = {
+            "statusCode": 400,
+            "message": f"ERROR while deleting route alignment. {e}"
+        }
+        
+        if 'pathParameters' in event:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(error_body, cls=CustomJSONEncoder)
+            }
+        else:
+            return error_body
+
+
+def admin_create_route_alignment(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Handle both direct invocation and API Gateway events
+        if 'body' in event:
+            body_data = json.loads(event.get('body', '{}'))
+        else:
+            # Direct invocation
+            body_data = event
+        
+        country = body_data.get('country')
+        city = body_data.get('city')
+        community = body_data.get('community')
+        
+        if not all([country, city, community]):
+            raise ValueError("Missing required fields: country, city, community")
+        
+        # Insert route alignment
+        insert_query = """
+            INSERT INTO employee_app.route_alignment (country, city, community, created_date, is_active)
+            VALUES (?, ?, ?, GETDATE(), 1)
+        """
+        
+        cursor = conn.cursor()
+        cursor.execute(insert_query, (country, city, community))
+        conn.commit()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Route alignment created successfully"
+        }
+        
+        # Return proper API Gateway response format
+        if 'body' in event:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(body, cls=CustomJSONEncoder)
+            }
+        else:
+            return body
+        
+    except Exception as e:
+        error_body = {
+            "statusCode": 400,
+            "message": f"ERROR while creating route alignment. {e}"
+        }
+        
+        if 'body' in event:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS'
+                },
+                'body': json.dumps(error_body, cls=CustomJSONEncoder)
+            }
+        else:
+            return error_body
 
 
 def admin_get_route_alignments(event, context):
