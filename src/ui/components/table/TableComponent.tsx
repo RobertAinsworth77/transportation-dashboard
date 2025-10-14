@@ -298,6 +298,33 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
                     </select>
                   </div>
                 </>
+              ) : title === 'Trips' ? (
+                <>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
+                      console.log('Status filter changed to:', e.target.value);
+                      setValue('statusFilter', e.target.value);
+                      _handleFilterChange();
+                    }}>
+                      <option value="">All Statuses</option>
+                      {filterOptions?.statuses?.map(status => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
+                      console.log('Route filter changed to:', e.target.value);
+                      setValue('routeFilter', e.target.value);
+                      _handleFilterChange();
+                    }}>
+                      <option value="">All Routes</option>
+                      {filterOptions?.routes?.map(route => (
+                        <option key={route} value={route}>{route}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
               ) : (
                 <>
                   <div className="col-auto">

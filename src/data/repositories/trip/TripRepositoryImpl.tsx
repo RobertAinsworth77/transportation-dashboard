@@ -12,13 +12,33 @@ import TripHostDto from "../../dto/trip/TripHostDto";
 import HostApi from "../../settings/host/HostApi";
 
 const TripRepositoryImpl: TripRepository = {
-    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
-        const response = await HostApi.post('/admin_get_trips', {
+    getFiltred: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined, statusFilter?: string, driverFilter?: string, routeFilter?: string): Promise<GetFiltredResponse> => new Promise<GetFiltredResponse>(async (resolve, reject) => {
+        const params: any = {
             "items_per_page": itemsPerPage,
             "page": page,
             "search_word": word,
             ...OrderByHostDto.toJson(orderBy, TripHostDto.toDBColumName)
-        });
+        };
+
+        if (statusFilter) {
+            params.status_filter = statusFilter;
+        }
+        if (driverFilter) {
+            params.driver_filter = driverFilter;
+        }
+        if (routeFilter) {
+            params.route_filter = routeFilter;
+        }
+
+        const response = await HostApi.post('/admin_get_trips', params);
+        console.log('Trips API response:', response);
+        
+        // Handle error responses
+        if (!response.data || !Array.isArray(response.data)) {
+            console.error('Invalid response data:', response);
+            throw new Error(response.message || 'Failed to fetch trips');
+        }
+        
         const responseParsed = response.data.map((trip: any) => {
             const tripTemp = {
                 ...TripHostDto.fromJson(trip),
@@ -34,7 +54,10 @@ const TripRepositoryImpl: TripRepository = {
             current_page: page,
             total_rows: response.total_rows,
             trips: responseParsed,
-            orderBy: OrderByHostDto.fromJson(response.order_by, TripHostDto.fromDBColumName)
+            orderBy: OrderByHostDto.fromJson(response.order_by, TripHostDto.fromDBColumName),
+            statuses: response.statuses || [],
+            drivers: response.drivers || [],
+            routes: response.routes || []
         });
     }),
     getById: (id: number): Promise<TripEntity> => new Promise<TripEntity>(async (resolve, reject) => {

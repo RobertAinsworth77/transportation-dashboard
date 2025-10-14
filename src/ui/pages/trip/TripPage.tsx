@@ -28,20 +28,39 @@ const TripPage: FC<{}> = () => {
     const [itemsPerPage, setItemsPerPage] = useState<number>(20);
     const [orderBy, setOrderBy] = useState<OrdeByFilterEntity | undefined>(undefined);
 
-    const _searchTrips = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined) => {
+    const [statusFilter, setStatusFilter] = useState<string>('');
+    const [routeFilter, setRouteFilter] = useState<string>('');
+    const [filterOptions, setFilterOptions] = useState<{statuses: string[], routes: string[]}>({statuses: [], routes: []});
+
+    const _searchTrips = async (word: string, page: number, itemsPerPageR: number, _orderBy: OrdeByFilterEntity | undefined, status?: string, route?: string) => {
         setCurrentPage(page);
         setTrips(undefined);
         setTotalResults(undefined);
         setSearchWord(word);
         setItemsPerPage(itemsPerPageR);
         setOrderBy(_orderBy);
+        
+        const statusFilterValue = status !== undefined ? status : statusFilter;
+        const routeFilterValue = route !== undefined ? route : routeFilter;
+        
+        setStatusFilter(statusFilterValue);
+        setRouteFilter(routeFilterValue);
+        
         try {
-            const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR, _orderBy);
+            const response: GetFiltredTripsUseCase.response = await di.useCases.getFiltredTripsUseCase?.call(word, page, itemsPerPageR, _orderBy, statusFilterValue, '', routeFilterValue);
             setTrips(response.trips);
             setCurrentPage(response.current_page);
             setTotalPages(response.total_pages);
             setTotalResults(response.total_rows);
             setOrderBy(response.orderBy);
+            
+            // Update filter options
+            if (response.statuses && response.routes) {
+                setFilterOptions({
+                    statuses: response.statuses,
+                    routes: response.routes
+                });
+            }
         } catch (error) {
             setTrips([]);
         }
@@ -51,7 +70,7 @@ const TripPage: FC<{}> = () => {
     const _handleDelete = async (trip: TripEntity) => {
         const deleteTrip = async () => {
             await di.useCases.deleteTripUseCase.call(trip.id);
-            _searchTrips(searchWord, currentPage, itemsPerPage, orderBy);
+            _searchTrips(searchWord, currentPage, itemsPerPage, orderBy, statusFilter, routeFilter);
             closeModalCustom();
         }
 
@@ -59,6 +78,10 @@ const TripPage: FC<{}> = () => {
 
     }
     const _handleRowClick = async (trip: TripEntity) => navigate(routes.trip.relativePath + '/' + trip.id);
+
+    useEffect(() => {
+        _searchTrips('', 1, 20, undefined);
+    }, []);
 
     return <div className="trip_page">
         <TableComponent title={i18n(KeyWordLocalization.TripPageTitle)}
@@ -79,7 +102,13 @@ const TripPage: FC<{}> = () => {
             handleAdd={_handleAdd}
             handleEdit={_handleEdit}
             handleDelete={_handleDelete}
-            showFilters={true} />
+            showFilters={true}
+            filterOptions={{
+                statuses: filterOptions.statuses,
+                routes: filterOptions.routes
+            }}
+            statusFilter={statusFilter}
+            routeFilter={routeFilter} />
     </div>
 }
 
