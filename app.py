@@ -157,6 +157,9 @@ def handler(event, context):
         elif resource == "/dashboard/route-alignments/{id}" and method == "DELETE":
             print("Routing to admin_delete_route_alignment")
             return admin_delete_route_alignment(event, context)
+        elif resource == "/dashboard/users/drivers" and method == "POST":
+            print("Routing to admin_get_all_drivers")
+            return admin_get_all_drivers(event, context)
         else:
             return {
                 "statusCode": 404,
@@ -2980,26 +2983,17 @@ def admin_get_routes(event, context):
 
 
 def admin_get_trips(event, context):
-
     try:
-
-        hostname = "itel-db-server.database.windows.net"
-
-        username = "reporting"
-
-        password = "H5ysh=ZDZtae~r{7B*Q8"
-
-        database = "itel_datasi"
-
-        connstring = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={hostname};DATABASE={database};UID={username};PWD={password}"
-
         conn = get_db_connection()
 
         items_per_page = event.get('items_per_page')
-
         page = event.get('page')
-
         search_word = event.get('search_word')
+        
+        # Add filter parameters
+        status_filter = event.get('status_filter', '')
+        driver_filter = event.get('driver_filter', '')
+        route_filter = event.get('route_filter', '')
         
         order_by_key_name = event.get('order_by_key_name') or 'trip_id'
         order_by_is_desc = event.get('order_by_is_desc')
@@ -3012,126 +3006,103 @@ def admin_get_trips(event, context):
         if order_by_key_name not in valid_columns:
             order_by_key_name = 'trip_id'
 
-        ##
+        # Build WHERE clause for search and filters
+        where_conditions = []
+        
+        if search_word:
+            where_conditions.append(f"""(route_name like '%{search_word}%'
+                        or d.route_description like '%{search_word}%'
+                        or CONCAT(b.name,' ', b.last_name) like '%{search_word}%'
+                        or b.name like '%{search_word}%'
+                        or a.status like '%{search_word}%'
+                        or CONVERT(VARCHAR(40), a.date_begin, 121) LIKE '%{search_word}%'
+                        or CONVERT(VARCHAR(40), a.date_end, 121) LIKE '%{search_word}%')""")
+        
+        if status_filter:
+            where_conditions.append(f"a.status = '{status_filter}'")
+            
+        if route_filter:
+            where_conditions.append(f"route_name = '{route_filter}'")
+        
+        where_clause = ""
+        if where_conditions:
+            where_clause = "WHERE " + " AND ".join(where_conditions)
 
         query_1 = f"""SELECT a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, CONCAT(b.name,' ', b.last_name) as driver_name, c.vehicle_id, 
-
 		c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description,
-
 		ISNULL(count(distinct (case when e.flaq='completed' then e.reserve_id end)),0) as passengers_count,
-
 		ISNULL(count(distinct (case when e.flaq='pending' then e.reserve_id end)),0) as reserves_pending_count
-
                         FROM employee_app.trip_table a 
-
 						JOIN employee_app.driver_table b
-
 						on a.driver_id = b.driver_id
-
 						JOIN employee_app.vehicle_table c
-
 						on a.vehicle_id = c.vehicle_id 
-
 						JOIN employee_app.route_table d
-
 						on a.route_id = d.route_id
-
 						LEFT join employee_app.reserve_table e
-
 						on a.trip_id=e.trip_id
-
-                        where route_name like '%{search_word}%'
-
-                        or d.route_description like '%{search_word}%'
-
-                        or CONCAT(b.name,' ', b.last_name) like '%{search_word}%'
-
-                        or b.name like '%{search_word}%'
-
-						or a.status like '%{search_word}%'
-
-                        or CONVERT(VARCHAR(40), a.date_begin, 121) LIKE '%{search_word}%'
-
-                        or CONVERT(VARCHAR(40), a.date_end, 121) LIKE '%{search_word}%'
-
+                        {where_clause}
 						GROUP BY a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, b.name, b.last_name, c.vehicle_id,c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description
-
                 """
 
         total_rows = len(pd.read_sql_query(query_1, conn, params=None))
-
         total_pages = math.ceil(total_rows/items_per_page)
 
         query_2 = f"""SELECT a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, CONCAT(b.name,' ', b.last_name) as driver_name, c.vehicle_id, 
-
 		c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description,
-
 		ISNULL(count(distinct (case when e.flaq='completed' then e.reserve_id end)),0) as passengers_count,
-
 		ISNULL(count(distinct (case when e.flaq='pending' then e.reserve_id end)),0) as reserves_pending_count
-
                     FROM employee_app.trip_table a 
-
                     JOIN employee_app.driver_table b
-
                     on a.driver_id = b.driver_id
-
                     JOIN employee_app.vehicle_table c
-
                     on a.vehicle_id = c.vehicle_id 
-
                     JOIN employee_app.route_table d
-
                     on a.route_id = d.route_id
-
                     LEFT join employee_app.reserve_table e
-
                     on a.trip_id=e.trip_id
-
-                    where route_name like '%{search_word}%'
-
-                    or d.route_description like '%{search_word}%'
-
-                    or CONCAT(b.name,' ', b.last_name) like '%{search_word}%'
-
-                    or b.name like '%{search_word}%'
-
-					or a.status like '%{search_word}%'
-
-                    or CONVERT(VARCHAR(40), a.date_begin, 121) LIKE '%{search_word}%'
-
-                    or CONVERT(VARCHAR(40), a.date_end, 121) LIKE '%{search_word}%'
-
-                    GROUP BY a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, b.name, b.last_name, c.vehicle_id,c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description
-
+                    {where_clause}
+					GROUP BY a.trip_id, a.date_begin, a.date_end, a.status, b.driver_id, b.name, b.last_name, c.vehicle_id,c.licence_plate_number, c.capacity, d.route_id, route_name, d.route_description
                     ORDER BY {order_by_key_name} {order_direction}
-
                     OFFSET {items_per_page*(page-1)} ROWS
-
                     FETCH NEXT {items_per_page} ROWS ONLY;
-
                 """
 
         df = pd.read_sql_query(query_2, conn, params=None)
-
         df.fillna(value='NULL', inplace=True)
-
         df["date_begin"] = df["date_begin"].astype(str)
-
         df["date_end"] = df["date_end"].astype(str)
 
+        # Get filter options
+        statuses_query = "SELECT DISTINCT status FROM employee_app.trip_table WHERE status IS NOT NULL ORDER BY status"
+        drivers_query = """SELECT DISTINCT CONCAT(b.name,' ', b.last_name) as driver_name 
+                          FROM employee_app.trip_table a 
+                          JOIN employee_app.driver_table b ON a.driver_id = b.driver_id 
+                          WHERE CONCAT(b.name,' ', b.last_name) IS NOT NULL 
+                          ORDER BY driver_name"""
+        routes_query = """SELECT DISTINCT route_name 
+                         FROM employee_app.trip_table a 
+                         JOIN employee_app.route_table d ON a.route_id = d.route_id 
+                         WHERE route_name IS NOT NULL 
+                         ORDER BY route_name"""
+
+        statuses_df = pd.read_sql_query(statuses_query, conn)
+        drivers_df = pd.read_sql_query(drivers_query, conn)
+        routes_df = pd.read_sql_query(routes_query, conn)
+
+        statuses = statuses_df['status'].tolist()
+        drivers = drivers_df['driver_name'].tolist()
+        routes = routes_df['route_name'].tolist()
+
         body = {
-
             "statusCode": 200,
-
             "message": "Trips were successfully obtained", 
-
             "total_pages": total_pages,
-
             "total_rows": total_rows,
-
-            "data": df.to_dict("records")
-
+            "data": df.to_dict("records"),
+            "statuses": statuses,
+            "drivers": drivers,
+            "routes": routes
         }
 
     except Exception as e:
