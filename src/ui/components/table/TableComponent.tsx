@@ -13,7 +13,7 @@ import NotResultsComponent from '../notResults/NotResultsComponent';
 import { OrdeByFilterEntity } from '../../../domain/entities/OrdeByFilterEntity';
 import { useNavigate } from 'react-router-dom';
 
-const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title, defaultOrderBy, showFilters }) => {
+const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, itemsPerPage, totalPages, totalItems, handleAdd, handleEdit, handleDelete, handleRowClick, title, defaultOrderBy, showFilters, filterOptions, countryFilter, cityFilter }) => {
   const { i18n } = useContext(LanguageContext) as LanguageContextType;
   const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm();
   const formRef = useRef<HTMLInputElement>(null);
@@ -89,69 +89,117 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
   }
 
   let _timerTap: any;
+  const _handleFilterChange = () => {
+    console.log('_handleFilterChange called');
+    clearTimeout(_timerTap);
+    _timerTap = setTimeout(() => {
+      if (title === 'Route Alignments') {
+        // For route alignments, reset to page 1 when filtering
+        const formData = getValues();
+        console.log('Filter change - form data:', formData);
+        setValue('page', 1); // Reset to page 1
+        console.log('Calling searchByWord with filters:', {
+          search: formData.search || '',
+          page: 1,
+          itemsPerPage: itemsPerPage || 20,
+          orderBy: _orderBy,
+          countryFilter: formData.countryFilter || '',
+          cityFilter: formData.cityFilter || ''
+        });
+        searchByWord(
+          formData.search || '',
+          1, // Always page 1 for filter changes
+          itemsPerPage || 20,
+          _orderBy,
+          formData.countryFilter || '',
+          formData.cityFilter || ''
+        );
+      } else {
+        _handleChangeText();
+      }
+    }, 300);
+  }
+
   const _handleChangeText = () => {
     clearTimeout(_timerTap);
     _timerTap = setTimeout(() => {
-      // Apply filters without server call
-      if (data) {
+      if (title === 'Route Alignments') {
+        // For route alignments, use server-side filtering but keep current page
         const formData = getValues();
-        let filtered = [...data];
-        
-        // Apply status filter
-        if (formData.statusFilter) {
-          filtered = filtered.filter(item => 
-            item.state?.toLowerCase() === formData.statusFilter.toLowerCase()
-          );
+        searchByWord(
+          formData.search || '',
+          formData.page || page, // Use form page or current page
+          itemsPerPage || 20,
+          _orderBy,
+          formData.countryFilter || '',
+          formData.cityFilter || ''
+        );
+      } else {
+        // Apply client-side filters for other pages (like trips)
+        if (data) {
+          const formData = getValues();
+          let filtered = [...data];
+          
+          // Apply status filter
+          if (formData.statusFilter) {
+            filtered = filtered.filter(item => 
+              item.state?.toLowerCase() === formData.statusFilter.toLowerCase()
+            );
+          }
+          
+          // Apply route filter
+          if (formData.routeFilter) {
+            filtered = filtered.filter(item => 
+              item.route?.name === formData.routeFilter
+            );
+          }
+          
+          // Apply search filter
+          if (formData.search) {
+            const searchTerm = formData.search.toLowerCase();
+            filtered = filtered.filter(item => 
+              Object.values(item).some(value => 
+                String(value).toLowerCase().includes(searchTerm)
+              )
+            );
+          }
+          
+          // Apply current sorting if any
+          if (_orderBy) {
+            filtered = filtered.sort((a, b) => {
+              const aValue = _getData(a, _orderBy.keyName);
+              const bValue = _getData(b, _orderBy.keyName);
+              
+              if (aValue == null && bValue == null) return 0;
+              if (aValue == null) return 1;
+              if (bValue == null) return -1;
+              
+              if (aValue instanceof Date && bValue instanceof Date) {
+                return _orderBy.isDesc ? bValue.getTime() - aValue.getTime() : aValue.getTime() - bValue.getTime();
+              }
+              
+              const aStr = String(aValue).toLowerCase();
+              const bStr = String(bValue).toLowerCase();
+              
+              if (aStr < bStr) return _orderBy.isDesc ? 1 : -1;
+              if (aStr > bStr) return _orderBy.isDesc ? -1 : 1;
+              return 0;
+            });
+          }
+          
+          setSortedData(filtered);
         }
-        
-        // Apply route filter
-        if (formData.routeFilter) {
-          filtered = filtered.filter(item => 
-            item.route?.name === formData.routeFilter
-          );
-        }
-        
-        // Apply search filter
-        if (formData.search) {
-          const searchTerm = formData.search.toLowerCase();
-          filtered = filtered.filter(item => 
-            Object.values(item).some(value => 
-              String(value).toLowerCase().includes(searchTerm)
-            )
-          );
-        }
-        
-        // Apply current sorting if any
-        if (_orderBy) {
-          filtered = filtered.sort((a, b) => {
-            const aValue = _getData(a, _orderBy.keyName);
-            const bValue = _getData(b, _orderBy.keyName);
-            
-            if (aValue == null && bValue == null) return 0;
-            if (aValue == null) return 1;
-            if (bValue == null) return -1;
-            
-            if (aValue instanceof Date && bValue instanceof Date) {
-              return _orderBy.isDesc ? bValue.getTime() - aValue.getTime() : aValue.getTime() - bValue.getTime();
-            }
-            
-            const aStr = String(aValue).toLowerCase();
-            const bStr = String(bValue).toLowerCase();
-            
-            if (aStr < bStr) return _orderBy.isDesc ? 1 : -1;
-            if (aStr > bStr) return _orderBy.isDesc ? -1 : 1;
-            return 0;
-          });
-        }
-        
-        setSortedData(filtered);
       }
     }, 300);
   }
   const onSubmit = (data: any) => {
     //change url params 
     navigate(`?q1=&search=${data.search}&page=${data.page}&itemsPerPage=${data.itemsPerPage}`);
-    searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy);
+    if (title === 'Route Alignments') {
+      searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy, data.countryFilter || '', data.cityFilter || '');
+    } else {
+      searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy);
+    }
     clearTimeout(_timerTap);
   }
   const _parse = (row: any, keyName: string) => {
@@ -191,7 +239,11 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
 
   const _searchTripsFirstTime = () => {
     const urlParams = new URLSearchParams(window.location.hash);
-    searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy);
+    if (title === 'Route Alignments') {
+      searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy, '', '');
+    } else {
+      searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy);
+    }
   }
 
   useEffect(() => {
@@ -210,37 +262,68 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
           }
         </div>
         <div className="col-12 col-md-6 d-flex align-items-center">
-          <input type="text" className="form-control flex-grow-1 me-2" onKeyUp={_handleChangeText} placeholder={i18n(KeyWordLocalization.Search)} {...register('search')} />
+          <input type="text" className="form-control flex-grow-1 me-2" onKeyUp={title === 'Route Alignments' ? _handleFilterChange : _handleChangeText} placeholder={i18n(KeyWordLocalization.Search)} {...register('search')} />
           <button className="btn btn-secondary" type='submit'>
             Submit
           </button>
         </div>
-        {/* Filter Row - Only show for trips */}
+        {/* Filter Row */}
         {showFilters && (
           <div className="col-12 mb-3">
             <div className="row g-2">
-              <div className="col-auto">
-                <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
-                  setValue('statusFilter', e.target.value);
-                  _handleChangeText();
-                }}>
-                  <option value="">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="in progress">In Progress</option>
-                </select>
-              </div>
-              <div className="col-auto">
-                <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
-                  setValue('routeFilter', e.target.value);
-                  _handleChangeText();
-                }}>
-                  <option value="">All Routes</option>
-                  {data && Array.from(new Set(data.map(item => item.route?.name).filter(Boolean))).map(routeName => (
-                    <option key={routeName} value={routeName}>{routeName}</option>
-                  ))}
-                </select>
-              </div>
+              {title === 'Route Alignments' ? (
+                <>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('countryFilter')} value={countryFilter || ''} onChange={(e) => {
+                      console.log('Country filter changed to:', e.target.value);
+                      setValue('countryFilter', e.target.value);
+                      _handleFilterChange();
+                    }}>
+                      <option value="">All Countries</option>
+                      {filterOptions?.countries?.map(country => (
+                        <option key={country} value={country}>{country}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('cityFilter')} value={cityFilter || ''} onChange={(e) => {
+                      console.log('City filter changed to:', e.target.value);
+                      setValue('cityFilter', e.target.value);
+                      _handleFilterChange();
+                    }}>
+                      <option value="">All Cities</option>
+                      {filterOptions?.cities?.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('statusFilter')} onChange={(e) => {
+                      setValue('statusFilter', e.target.value);
+                      _handleChangeText();
+                    }}>
+                      <option value="">All Status</option>
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="in progress">In Progress</option>
+                    </select>
+                  </div>
+                  <div className="col-auto">
+                    <select className="form-select form-select-sm" {...register('routeFilter')} onChange={(e) => {
+                      setValue('routeFilter', e.target.value);
+                      _handleChangeText();
+                    }}>
+                      <option value="">All Routes</option>
+                      {data && Array.from(new Set(data.map(item => item.route?.name).filter(Boolean))).map(routeName => (
+                        <option key={routeName} value={routeName}>{routeName}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

@@ -11,15 +11,21 @@ export default class RouteAlignmentRepositoryImpl implements RouteAlignmentRepos
     searchWord: string,
     page: number,
     itemsPerPage: number,
-    orderBy?: OrdeByFilterEntity
+    orderBy?: OrdeByFilterEntity,
+    countryFilter?: string,
+    cityFilter?: string
   ): Promise<{
     routeAlignments: RouteAlignmentEntity[];
     current_page: number;
     total_pages: number;
     total_rows: number;
     orderBy?: OrdeByFilterEntity;
+    countries: string[];
+    cities: string[];
   }> {
     try {
+      console.log('Repository getFiltredRouteAlignments called with:', { searchWord, page, itemsPerPage, orderBy, countryFilter, cityFilter });
+      
       const params = new URLSearchParams({
         search_word: searchWord,
         page: page.toString(),
@@ -31,7 +37,20 @@ export default class RouteAlignmentRepositoryImpl implements RouteAlignmentRepos
         params.append('order_by_is_desc', orderBy.isDesc.toString());
       }
 
-      const response = await fetch(`${API_URL}/dashboard/route-alignments?${params}`, {
+      if (countryFilter) {
+        console.log('Adding country_filter to params:', countryFilter);
+        params.append('country_filter', countryFilter);
+      }
+
+      if (cityFilter) {
+        console.log('Adding city_filter to params:', cityFilter);
+        params.append('city_filter', cityFilter);
+      }
+
+      const url = `${API_URL}/dashboard/route-alignments?${params}`;
+      console.log('Making API call to:', url);
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -44,6 +63,7 @@ export default class RouteAlignmentRepositoryImpl implements RouteAlignmentRepos
       }
 
       const data = await response.json();
+      console.log('API response data:', data);
       
       return {
         routeAlignments: data.route_alignments?.map((dto: any) => new RouteAlignmentDto(
@@ -58,6 +78,36 @@ export default class RouteAlignmentRepositoryImpl implements RouteAlignmentRepos
         total_pages: data.total_pages || 1,
         total_rows: data.total_rows || 0,
         orderBy: data.orderBy,
+        countries: data.countries || [],
+        cities: data.cities || []
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFilterOptions(): Promise<{
+    countries: string[];
+    cities: string[];
+  }> {
+    try {
+      const response = await fetch(`${API_URL}/dashboard/route-alignments/filters`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('aws_cognito_token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch filter options');
+      }
+
+      const data = await response.json();
+      
+      return {
+        countries: data.countries || [],
+        cities: data.cities || []
       };
     } catch (error) {
       throw error;

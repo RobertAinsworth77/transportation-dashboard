@@ -9,7 +9,7 @@ interface TableComponentProps {
         keyName: string,
     }[],
     defaultOrderBy?: OrdeByFilterEntity | undefined,
-    searchByWord: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined) => void;
+    searchByWord: (word: string, page: number, itemsPerPage: number, orderBy: OrdeByFilterEntity | undefined, countryFilter?: string, cityFilter?: string) => void;
     page: number;
     itemsPerPage?: number;
     totalPages?: number;
@@ -19,6 +19,9 @@ interface TableComponentProps {
     handleDelete?: (row: any) => Promise<void> | undefined;
     handleRowClick?: (row: any) => Promise<void> | undefined;
     showFilters?: boolean;
+    filterOptions?: {countries: string[], cities: string[]};
+    countryFilter?: string;
+    cityFilter?: string;
 }
 
 export default TableComponentProps;

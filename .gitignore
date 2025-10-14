@@ -37,3 +37,4 @@ docker-dev-setup.py
 test_secrets.py
 original_app.py
 modified_app.py
+lambda_function.zip

@@ -145,6 +145,9 @@ def handler(event, context):
         if resource == "/dashboard/route-alignments" and method == "GET":
             print("Routing to admin_get_route_alignments")
             return admin_get_route_alignments(event, context)
+        elif resource == "/dashboard/route-alignments/filters" and method == "GET":
+            print("Routing to admin_get_route_alignment_filters")
+            return admin_get_route_alignment_filters(event, context)
         elif resource == "/dashboard/route-alignments" and method == "POST":
             print("Routing to admin_create_route_alignment")
             return admin_create_route_alignment(event, context)
@@ -6172,6 +6175,63 @@ def admin_create_route_alignment(event, context):
             return error_body
 
 
+def admin_get_route_alignment_filters(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Get all unique countries
+        countries_query = "SELECT DISTINCT country FROM employee_app.route_alignment WHERE country IS NOT NULL ORDER BY country"
+        countries_df = pd.read_sql_query(countries_query, conn)
+        countries = countries_df['country'].tolist()
+        
+        # Get all unique cities
+        cities_query = "SELECT DISTINCT city FROM employee_app.route_alignment WHERE city IS NOT NULL ORDER BY city"
+        cities_df = pd.read_sql_query(cities_query, conn)
+        cities = cities_df['city'].tolist()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Route alignment filters successfully obtained",
+            "countries": countries,
+            "cities": cities
+        }
+        
+        # Return proper API Gateway response format
+        if 'queryStringParameters' in event:
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS'
+                },
+                'body': json.dumps(body, cls=CustomJSONEncoder)
+            }
+        else:
+            return body
+            
+    except Exception as e:
+        error_body = {
+            "statusCode": 400,
+            "message": f"ERROR while getting route alignment filters. {e}",
+            "countries": [],
+            "cities": []
+        }
+        
+        if 'queryStringParameters' in event:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS'
+                },
+                'body': json.dumps(error_body, cls=CustomJSONEncoder)
+            }
+        else:
+            return error_body
+
+
 def admin_get_route_alignments(event, context):
     try:
         conn = get_db_connection()
@@ -6184,6 +6244,8 @@ def admin_get_route_alignments(event, context):
             items_per_page = int(params.get('items_per_page', 20))
             order_by_key_name = params.get('order_by_key_name', 'id')
             order_by_is_desc = params.get('order_by_is_desc', 'false').lower() == 'true'
+            country_filter = params.get('country_filter', '')
+            city_filter = params.get('city_filter', '')
         else:
             # Direct invocation
             search_word = event.get('search_word', '')
@@ -6191,6 +6253,8 @@ def admin_get_route_alignments(event, context):
             items_per_page = int(event.get('items_per_page', 20))
             order_by_key_name = event.get('order_by_key_name', 'id')
             order_by_is_desc = event.get('order_by_is_desc', 'false').lower() == 'true'
+            country_filter = event.get('country_filter', '')
+            city_filter = event.get('city_filter', '')
         
         # Calculate offset
         offset = (page - 1) * items_per_page
@@ -6199,10 +6263,21 @@ def admin_get_route_alignments(event, context):
         order_direction = 'DESC' if order_by_is_desc else 'ASC'
         order_clause = f"ORDER BY {order_by_key_name} {order_direction}"
         
-        # Build WHERE clause for search
-        where_clause = ""
+        # Build WHERE clause for search and filters
+        where_conditions = []
+        
         if search_word:
-            where_clause = f"WHERE country LIKE '%{search_word}%' OR city LIKE '%{search_word}%' OR community LIKE '%{search_word}%'"
+            where_conditions.append(f"(country LIKE '%{search_word}%' OR city LIKE '%{search_word}%' OR community LIKE '%{search_word}%')")
+        
+        if country_filter:
+            where_conditions.append(f"country = '{country_filter}'")
+            
+        if city_filter:
+            where_conditions.append(f"city = '{city_filter}'")
+        
+        where_clause = ""
+        if where_conditions:
+            where_clause = "WHERE " + " AND ".join(where_conditions)
         
         # Get total count
         count_query = f"""
@@ -6229,6 +6304,16 @@ def admin_get_route_alignments(event, context):
         
         df = pd.read_sql_query(data_query, conn)
         
+        # Get filter options (all unique countries and cities)
+        countries_query = "SELECT DISTINCT country FROM employee_app.route_alignment WHERE country IS NOT NULL ORDER BY country"
+        cities_query = "SELECT DISTINCT city FROM employee_app.route_alignment WHERE city IS NOT NULL ORDER BY city"
+        
+        countries_df = pd.read_sql_query(countries_query, conn)
+        cities_df = pd.read_sql_query(cities_query, conn)
+        
+        countries = countries_df['country'].tolist()
+        cities = cities_df['city'].tolist()
+        
         # Convert DataFrame to dict and handle datetime serialization
         records = df.to_dict("records")
         for record in records:
@@ -6245,6 +6330,8 @@ def admin_get_route_alignments(event, context):
             "current_page": page,
             "total_pages": total_pages,
             "total_rows": total_rows,
+            "countries": countries,
+            "cities": cities,
             "orderBy": {
                 "keyName": order_by_key_name,
                 "isDesc": order_by_is_desc
@@ -6498,7 +6585,9 @@ lambdas_functions = {
 
     "new_api_sites": new_api_sites,
 
-    "admin_get_route_alignments": admin_get_route_alignments
+    "admin_get_route_alignments": admin_get_route_alignments,
+
+    "admin_get_route_alignment_filters": admin_get_route_alignment_filters
 
 
 

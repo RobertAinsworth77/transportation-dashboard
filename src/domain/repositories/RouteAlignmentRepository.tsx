@@ -6,13 +6,22 @@ export default interface RouteAlignmentRepository {
     searchWord: string,
     page: number,
     itemsPerPage: number,
-    orderBy?: OrdeByFilterEntity
+    orderBy?: OrdeByFilterEntity,
+    countryFilter?: string,
+    cityFilter?: string
   ): Promise<{
     routeAlignments: RouteAlignmentEntity[];
     current_page: number;
     total_pages: number;
     total_rows: number;
     orderBy?: OrdeByFilterEntity;
+    countries: string[];
+    cities: string[];
+  }>;
+  
+  getFilterOptions(): Promise<{
+    countries: string[];
+    cities: string[];
   }>;
   
   createRouteAlignment(routeAlignment: RouteAlignmentEntity): Promise<void>;
