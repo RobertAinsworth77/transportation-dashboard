@@ -62,9 +62,36 @@ const TripRepositoryImpl: TripRepository = {
     }),
     getById: (id: number): Promise<TripEntity> => new Promise<TripEntity>(async (resolve, reject) => {
         try {
-            const responseText = await HostApi.get(`/dashboard/trips?id=${id}`);
-            const replaced = responseText.replace(/'/g, '"').replace(/\\xa0/g, '\\n');
+            console.log('TripRepository: Making API call to /dashboard/trips/' + id);
+            
+            // Direct fetch test to bypass HostApi
+            const directResponse = await fetch(`https://9wieil5vn5.execute-api.us-east-1.amazonaws.com/dev/dashboard/trips/${id}`);
+            console.log('Direct fetch response:', directResponse.status, directResponse.statusText);
+            const directText = await directResponse.text();
+            console.log('Direct fetch body:', directText);
+            
+            const responseText = await HostApi.get(`/dashboard/trips/${id}`);
+            console.log('TripRepository: Raw response:', responseText);
+            
+            const replaced = responseText
+                .replace(/'/g, '"')
+                .replace(/\\xa0/g, '\\n')
+                .replace(/np\.int64\((\d+)\)/g, '$1')  // Replace np.int64(1) with 1
+                .replace(/np\.float64\(([0-9.]+)\)/g, '$1');  // Replace np.float64(1.0) with 1.0
+            console.log('TripRepository: After replacement:', replaced);
+            
+            try {
+                const response = JSON.parse(replaced);
+                console.log('TripRepository: Parsed response:', response);
+            } catch (parseError) {
+                console.error('TripRepository: JSON parse error:', parseError);
+                console.log('TripRepository: Problematic JSON:', replaced);
+                reject(parseError);
+                return;
+            }
+            
             const response = JSON.parse(replaced);
+            console.log('TripRepository: Parsed response:', response);
             const driver = DriverHostDto.fromJson(response);
             const bus = BusHostDto.fromJson(response);
             const route = RouteHostDto.fromJson(response);

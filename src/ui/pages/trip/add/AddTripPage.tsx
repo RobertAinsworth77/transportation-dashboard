@@ -94,30 +94,43 @@ const AddTripPage = () => {
         setValue('end_point', position);
     };
     const _loadTrip = async () => {
-        const trip = await di.useCases.getTripByIdUseCase?.call(parseInt(id!));
-        if (trip == undefined) return;
-        console.log('trip get', trip);
-        if(!trip.canEdit) navigate(routesRouter.trip.relativePath);
-        if (trip.driver != null) trip.driver.defaultBus = trip.bus;
-        Object.entries(trip).forEach(([key, value]) => {
-            console.log('key', key, 'value', value);
-            setValue(key, value);
-        });
-        setPolylines(trip.route?.polylines);
-        console.log('test time', trip.start_date, DateParse.getTimeForInput(trip.start_date))
-        setValue('route', trip.route ?? { id: trip.route_id, name: "LOJ - itel MBJ" });
-        setValue('driver', trip.driver ?? { id: trip.driver_id, name: "" });
-        setValue('bus', trip.bus ?? { id: trip.bus_id, name: "" });
-        setValue('site', trip.route?.site ?? { id: trip.route?.site_id ?? 0, name: "" });
-        setValue('start_date_date', DateParse.getDateForInput(trip.start_date));
-        setValue('start_date_time', DateParse.getTimeForInput(trip.start_date));
-        if (trip.end_date != null && Number.isNaN(trip.end_date.getTime()) == false) {
-            setValue('end_date_date', trip.end_date ? DateParse.getDateForInput(trip.end_date) : undefined);
-            setValue('end_date_time', trip.end_date ? DateParse.getTimeForInput(trip.end_date) : undefined);
+        try {
+            console.log('Loading trip with ID:', id);
+            console.log('getTripByIdUseCase available:', !!di.useCases.getTripByIdUseCase);
+            
+            const trip = await di.useCases.getTripByIdUseCase?.call(parseInt(id!));
+            console.log('Trip loaded:', trip);
+            
+            if (trip == undefined) {
+                console.log('Trip is undefined, returning');
+                return;
+            }
+            
+            console.log('trip get', trip);
+            if(!trip.canEdit) navigate(routesRouter.trip.relativePath);
+            if (trip.driver != null) trip.driver.defaultBus = trip.bus;
+            Object.entries(trip).forEach(([key, value]) => {
+                console.log('key', key, 'value', value);
+                setValue(key, value);
+            });
+            setPolylines(trip.route?.polylines);
+            console.log('test time', trip.start_date, DateParse.getTimeForInput(trip.start_date))
+            setValue('route', trip.route ?? { id: trip.route_id, name: "LOJ - itel MBJ" });
+            setValue('driver', trip.driver ?? { id: trip.driver_id, name: "" });
+            setValue('bus', trip.bus ?? { id: trip.bus_id, name: "" });
+            setValue('site', trip.route?.site ?? { id: trip.route?.site_id ?? 0, name: "" });
+            setValue('start_date_date', DateParse.getDateForInput(trip.start_date));
+            setValue('start_date_time', DateParse.getTimeForInput(trip.start_date));
+            if (trip.end_date != null && Number.isNaN(trip.end_date.getTime()) == false) {
+                setValue('end_date_date', trip.end_date ? DateParse.getDateForInput(trip.end_date) : undefined);
+                setValue('end_date_time', trip.end_date ? DateParse.getTimeForInput(trip.end_date) : undefined);
+            }
+            if (trip.route?.start_point != null) onChangeInitPoint(trip.route.start_point);
+            if (trip.route?.end_point != null) onChangeEndPoint(trip.route.end_point);
+            setLoaded(true);
+        } catch (error) {
+            console.error('Error loading trip:', error);
         }
-        if (trip.route?.start_point != null) onChangeInitPoint(trip.route.start_point);
-        if (trip.route?.end_point != null) onChangeEndPoint(trip.route.end_point);
-        setLoaded(true);
     };
 
     const onSubmit = (data: any) => id != undefined ? _updateTrip(data) : _createTrip(data);
@@ -172,10 +185,17 @@ const AddTripPage = () => {
     };
 
     const _loadData = async () => {
-        await _searchBusses("");
-        await _searchDrivers("");
-        await _searchSites("");
-        if (id != undefined) _loadTrip();
+        try {
+            await _searchBusses("");
+            await _searchDrivers("");
+            await _searchSites("");
+            if (id != undefined) {
+                console.log('About to load trip with ID:', id);
+                await _loadTrip();
+            }
+        } catch (error) {
+            console.error('Error in _loadData:', error);
+        }
     }
 
     useEffect(() => {

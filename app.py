@@ -160,6 +160,9 @@ def handler(event, context):
         elif resource == "/dashboard/location-preferences" and method == "GET":
             print("Routing to admin_get_location_preferences_summary")
             return admin_get_location_preferences_summary(event, context)
+        elif resource == "/dashboard/location-preferences" and method == "POST":
+            print("Routing to admin_create_location_preference")
+            return admin_create_location_preference(event, context)
         elif resource == "/dashboard/location-preferences/summary" and method == "GET":
             print("Routing to admin_get_location_preferences_summary")
             return admin_get_location_preferences_summary(event, context)
@@ -224,20 +227,30 @@ def handler(event, context):
             
 
     else:
-
-        response = {
-
-            "statusCode": 400,
-
-            "body": {
-
-                "message": "lambda_function_name key is missing as element on event"
-
+        # Check if we have a LAMBDA_FUNCTION_NAME environment variable
+        env_func_name = os.environ.get('LAMBDA_FUNCTION_NAME')
+        if env_func_name and env_func_name in lambdas_functions:
+            print(f"Using environment function name: {env_func_name}")
+            event["lambda_function_name"] = env_func_name
+            
+            try:
+                body = lambdas_functions[env_func_name](event, context)
+                print("Response body:", body)
+                return { "body": body }
+            except Exception as e:
+                print("Internal lambda error:", str(e))
+                return {
+                    "statusCode": 500,
+                    "body": {"message": "Internal lambda function failed."}
+                }
+        else:
+            response = {
+                "statusCode": 400,
+                "body": {
+                    "message": "lambda_function_name key is missing as element on event"
+                }
             }
-
-        }
-
-        return response
+            return response
 
 
 
@@ -6982,3 +6995,77 @@ def admin_get_location_preferences_by_country(event, context):
 
 
 
+def admin_create_location_preference(event, context):
+    """Handle POST /dashboard/location-preferences"""
+    try:
+        # Parse request body
+        body = json.loads(event.get('body', '{}'))
+        
+        # Extract required fields
+        country = body.get('country')
+        pickup_location = body.get('pickup_location')
+        dropoff_location = body.get('dropoff_location')
+        preferred_timeframe = body.get('preferred_timeframe')
+        period_start = body.get('period_start')
+        period_end = body.get('period_end')
+        
+        # Validate required fields
+        if not all([country, pickup_location, dropoff_location, preferred_timeframe, period_start, period_end]):
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+                },
+                'body': json.dumps({
+                    'statusCode': 400,
+                    'message': 'Missing required fields: country, pickup_location, dropoff_location, preferred_timeframe, period_start, period_end'
+                })
+            }
+        
+        # Get employee_id from headers or use default (in real app, this would come from authentication)
+        employee_id = event.get('headers', {}).get('employee-id', '1')
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Insert location preference
+        insert_query = """
+        INSERT INTO employee_app.location_preferences 
+        (employee_id, country, pickup_location, dropoff_location, preferred_timeframe, period_start, period_end, created_date, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE(), 1)
+        """
+        
+        cursor.execute(insert_query, (employee_id, country, pickup_location, dropoff_location, preferred_timeframe, period_start, period_end))
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 200,
+                'message': 'Location preference created successfully'
+            })
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 500,
+                'message': f'Error creating location preference: {str(e)}'
+            })
+        }
