@@ -5467,6 +5467,78 @@ def admin_get_trip_by_id(event, context):
     return body
 
 
+def employee_get_future_bookings(event, context):
+    try:
+        # Get database credentials from individual Secrets Manager secrets
+        secrets_client = boto3.client('secretsmanager', region_name='us-east-1')
+        
+        hostname_response = secrets_client.get_secret_value(SecretId='db_server')
+        hostname = hostname_response['SecretString']  # Plain text, not JSON
+        
+        username_response = secrets_client.get_secret_value(SecretId='db_user_dev')
+        username = username_response['SecretString']  # Plain text
+        
+        password_response = secrets_client.get_secret_value(SecretId='db_password_dev')
+        password = password_response['SecretString']  # Plain text
+        
+        database_response = secrets_client.get_secret_value(SecretId='db_name_dev')
+        database = database_response['SecretString']  # Plain text
+        
+        connstring_local = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={hostname};DATABASE={database};UID={username};PWD={password}"
+        conn = pyodbc.connect(connstring_local, autocommit=False)
+        
+        hrm_id = event.get('hrm_id')
+        page_size = event.get('page_size', 20)
+        page_number = event.get('page_number', 1)
+        
+        # Query to get future bookings for the employee
+        query_1 = f"""select C.route_name, A.trip_id, B.date_begin from employee_app.reserve_table A
+                        join employee_app.trip_table B
+                        on A.trip_id=B.trip_id
+                        join employee_app.route_table C
+                        on B.route_id=C.route_id
+                        where A.employee_id = {hrm_id} 
+                        and A.flaq = 'pending'
+                        and B.date_begin >= GETDATE()
+                        ORDER BY B.date_begin ASC
+                """
+        
+        total_rows = len(pd.read_sql_query(query_1, conn, params=None))
+        total_pages = math.ceil(total_rows/page_size) if total_rows > 0 else 1
+        
+        query_2 = f"""select C.route_name, A.trip_id, B.date_begin from employee_app.reserve_table A
+                        join employee_app.trip_table B
+                        on A.trip_id=B.trip_id
+                        join employee_app.route_table C
+                        on B.route_id=C.route_id
+                        where A.employee_id = {hrm_id} 
+                        and A.flaq = 'pending'
+                        and B.date_begin >= GETDATE()
+                    ORDER BY B.date_begin ASC
+                    OFFSET {page_size*(page_number-1)} ROWS
+                    FETCH NEXT {page_size} ROWS ONLY;
+                """
+        
+        df = pd.read_sql_query(query_2, conn, params=None)
+        df["date_begin"] = df["date_begin"].astype(str)
+        
+        body = {
+            "statusCode": 200,
+            "message": "Future employee's reserves were successfully obtained", 
+            "total_pages": total_pages,
+            "data": df.to_dict("records")
+        }
+        
+    except Exception as e:
+        print(f"Error in employee_get_future_bookings: {str(e)}")
+        body = {
+            "statusCode": 400,
+            "message": f"ERROR while getting future bookings: {str(e)}",
+            "data": ""
+        } 
+    
+    return body
+
 
 def admin_get_trip_passengers(event, context):
 
@@ -6684,6 +6756,8 @@ lambdas_functions = {
     "admin_add_bus":admin_add_bus,
 
     "admin_edit_route":admin_edit_route,
+
+    "employee_get_future_bookings":employee_get_future_bookings,
 
     "check_passenger_reserve_v2":check_passenger_reserve_v2,
 

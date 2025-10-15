@@ -73,6 +73,37 @@ const DetailedTripPage: FC<{}> = () => {
                 </div>
                 <div className="w-100 card p-3 my-3">
                     <div className="row">
+                        <div className="col-lg-12 mb-3">
+                            <h3>Trip Details</h3>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>Driver</strong><br />
+                            <span>{trip.driver?.name || 'Not assigned'}</span>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>Bus</strong><br />
+                            <span>{trip.bus?.plate || `Bus #${trip.bus?.id}` || 'Not assigned'}</span>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>Start Time</strong><br />
+                            <span>{trip.start_date ? new Date(trip.start_date).toLocaleString() : 'Not set'}</span>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>End Time</strong><br />
+                            <span>{trip.end_date ? new Date(trip.end_date).toLocaleString() : 'Not set'}</span>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>Status</strong><br />
+                            <span>{i18n(trip.state)}</span>
+                        </div>
+                        <div className="col-lg-4 my-3">
+                            <strong>Site</strong><br />
+                            <span>{trip.route?.site?.name || 'Not specified'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="w-100 card p-3 my-3">
+                    <div className="row">
                         <div className="col-lg-7">
                             <div className="row">
                                 <h3 className="w-100">{i18n(KeyWordLocalization.TripEntityRoute)}</h3>

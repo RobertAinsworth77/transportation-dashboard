@@ -123,7 +123,7 @@ const TripRepositoryImpl: TripRepository = {
         body = { ...body, ...route, site_id: trip.route?.site?.id };
         if (body.route_id == 0 || body.route_id == undefined)
             body.route_id = "";
-        await HostApi.put(`/dashboard/trips?id=${trip.id}`, body).then((response) => {
+        await HostApi.put(`/dashboard/trips/${trip.id}`, body).then((response) => {
             resolve();
         }).catch((error) => reject(error));
     }),
