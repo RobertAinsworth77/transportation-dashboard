@@ -157,6 +157,15 @@ def handler(event, context):
         elif resource == "/dashboard/route-alignments/{id}" and method == "DELETE":
             print("Routing to admin_delete_route_alignment")
             return admin_delete_route_alignment(event, context)
+        elif resource == "/dashboard/location-preferences" and method == "GET":
+            print("Routing to admin_get_location_preferences_summary")
+            return admin_get_location_preferences_summary(event, context)
+        elif resource == "/dashboard/location-preferences/summary" and method == "GET":
+            print("Routing to admin_get_location_preferences_summary")
+            return admin_get_location_preferences_summary(event, context)
+        elif resource == "/dashboard/location-preferences/country/{country}" and method == "GET":
+            print("Routing to admin_get_location_preferences_by_country")
+            return admin_get_location_preferences_by_country(event, context)
         elif resource == "/dashboard/users/drivers" and method == "POST":
             print("Routing to admin_get_all_drivers")
             return admin_get_all_drivers(event, context)
@@ -1118,7 +1127,128 @@ def get_user_information(event, context):
 
 
 
+def employee_get_countries(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Query the same table that production uses for countries
+        query = """
+            SELECT DISTINCT country 
+            FROM employee_app.sites_table 
+            WHERE country IS NOT NULL AND country != ''
+            ORDER BY country
+        """
+        
+        cursor = conn.cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        
+        countries_data = []
+        for row in rows:
+            countries_data.append({
+                "country": row[0]
+            })
+        
+        return {
+            "statusCode": 200,
+            "message": "Countries were successfully obtained",
+            "data": countries_data
+        }
+        
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "message": f"ERROR while getting countries: {e}",
+            "data": []
+        }
+
+
 def get_driver_information(event, context):
+    try:
+        conn = get_db_connection()
+        email = event.get('email')
+        
+        query = """
+            SELECT d.driver_id, d.name, d.last_name, d.cell_phone, d.email, d.status 
+            FROM employee_app.driver_table as d 
+            WHERE d.email = ?
+        """
+        
+        cursor = conn.cursor()
+        cursor.execute(query, (email,))
+        rows = cursor.fetchall()
+        
+        driver_data = []
+        for row in rows:
+            driver_data.append({
+                "driver_id": row[0],
+                "name": row[1],
+                "last_name": row[2],
+                "cell_phone": row[3],
+                "email": row[4],
+                "status": row[5]
+            })
+        
+        return {
+            "statusCode": 200,
+            "message": "Driver information successfully obtained",
+            "data": driver_data
+        }
+        
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "message": f"ERROR while getting Driver. {e}",
+            "data": ""
+        }
+
+
+def get_employee_info(event, context):
+    try:
+        conn = get_db_connection()
+        email = event.get('email')
+        
+        query = """
+            SELECT employee_id, name, last_name, phone_number, email, status, section_name 
+            FROM employee_app.employee_table 
+            WHERE email = ?
+        """
+        
+        cursor = conn.cursor()
+        cursor.execute(query, (email,))
+        row = cursor.fetchone()
+        
+        if row:
+            employee_data = {
+                "employee_id": row[0],
+                "name": row[1],
+                "last_name": row[2],
+                "phone_number": row[3],
+                "email": row[4],
+                "status": row[5],
+                "section_name": row[6]
+            }
+            
+            return {
+                "statusCode": 200,
+                "message": "Employee information successfully obtained",
+                "data": [employee_data]  # Return as array like production
+            }
+        else:
+            return {
+                "statusCode": 404,
+                "message": "Employee not found",
+                "data": []
+            }
+            
+    except Exception as e:
+        return {
+            "statusCode": 400,
+            "message": f"ERROR while getting employee info: {e}",
+            "data": []
+        }
+
+
 
     try:
 
@@ -6426,6 +6556,10 @@ lambdas_functions = {
 
     "get_driver_information": get_driver_information,
 
+    "get_employee_info": get_employee_info,
+
+    "employee_get_countries": employee_get_countries,
+
     "employee_create_booking": employee_create_booking,
 
     "employee_cancel_booking":employee_cancel_booking,
@@ -6593,6 +6727,252 @@ lambdas_functions = {
 #handler({"lambda_function_name": "check_passenger_reserve_v2","trip_id":205, "hrm_id":808333},{})
 
 # handler({"search_employee_by_hrm": "search_employee_by_hrm","hrm_id":791093}, {})
+
+def admin_get_location_preferences_summary(event, context):
+    """Handle GET /dashboard/location-preferences/summary"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get country-level summary
+        summary_query = """
+        SELECT 
+            country,
+            COUNT(*) as response_count,
+            COUNT(DISTINCT employee_id) as unique_employees,
+            (SELECT COUNT(*) FROM employee_app.employee_table WHERE status = 'active') as total_employees
+        FROM employee_app.location_preferences 
+        WHERE is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY country
+        ORDER BY response_count DESC
+        """
+        
+        cursor.execute(summary_query)
+        summary_results = []
+        for row in cursor.fetchall():
+            result = {
+                'country': row[0],
+                'response_count': row[1],
+                'unique_employees': row[2],
+                'total_employees': row[3]
+            }
+            result['response_rate'] = round((result['unique_employees'] / result['total_employees']) * 100, 1)
+            summary_results.append(result)
+        
+        # Get time preference summary
+        time_query = """
+        SELECT 
+            preferred_timeframe,
+            COUNT(*) as request_count
+        FROM employee_app.location_preferences 
+        WHERE is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY preferred_timeframe
+        ORDER BY request_count DESC
+        """
+        
+        cursor.execute(time_query)
+        time_results = []
+        for row in cursor.fetchall():
+            time_results.append({
+                'preferred_timeframe': row[0],
+                'request_count': row[1]
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 200,
+                'message': 'Location preferences summary retrieved successfully',
+                'data': {
+                    'country_summary': summary_results,
+                    'time_preferences': time_results
+                }
+            }, cls=CustomJSONEncoder)
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 500,
+                'message': f'Error retrieving location preferences summary: {str(e)}'
+            })
+        }
+
+def admin_get_location_preferences_by_country(event, context):
+    """Handle GET /dashboard/location-preferences/country/{country}"""
+    try:
+        import urllib.parse
+        
+        # Get country from path parameters
+        country = event.get('pathParameters', {}).get('country')
+        print(f"Raw country parameter: {country}")
+        
+        if not country:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                    'Access-Control-Allow-Methods': 'GET,OPTIONS'
+                },
+                'body': json.dumps({
+                    'statusCode': 400,
+                    'message': 'Country parameter is required'
+                })
+            }
+        
+        # URL decode the country parameter
+        country = urllib.parse.unquote(country)
+        print(f"Decoded country parameter: {country}")
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get pickup location breakdown
+        pickup_query = """
+        SELECT 
+            pickup_location,
+            COUNT(*) as request_count,
+            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM employee_app.location_preferences WHERE country = ? AND is_active = 1 AND period_end >= GETDATE()), 1) as percentage
+        FROM employee_app.location_preferences 
+        WHERE country = ? 
+        AND is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY pickup_location
+        ORDER BY request_count DESC
+        """
+        
+        cursor.execute(pickup_query, (country, country))
+        pickup_results = []
+        for row in cursor.fetchall():
+            pickup_results.append({
+                'pickup_location': row[0],
+                'request_count': row[1],
+                'percentage': row[2]
+            })
+        
+        # Get dropoff location breakdown
+        dropoff_query = """
+        SELECT 
+            dropoff_location,
+            COUNT(*) as request_count,
+            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM employee_app.location_preferences WHERE country = ? AND is_active = 1 AND period_end >= GETDATE()), 1) as percentage
+        FROM employee_app.location_preferences 
+        WHERE country = ? 
+        AND is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY dropoff_location
+        ORDER BY request_count DESC
+        """
+        
+        cursor.execute(dropoff_query, (country, country))
+        dropoff_results = []
+        for row in cursor.fetchall():
+            dropoff_results.append({
+                'dropoff_location': row[0],
+                'request_count': row[1],
+                'percentage': row[2]
+            })
+        
+        # Get time preference breakdown for this country
+        time_query = """
+        SELECT 
+            preferred_timeframe,
+            COUNT(*) as request_count,
+            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM employee_app.location_preferences WHERE country = ? AND is_active = 1 AND period_end >= GETDATE()), 1) as percentage
+        FROM employee_app.location_preferences 
+        WHERE country = ? 
+        AND is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY preferred_timeframe
+        ORDER BY request_count DESC
+        """
+        
+        cursor.execute(time_query, (country, country))
+        time_results = []
+        for row in cursor.fetchall():
+            time_results.append({
+                'preferred_timeframe': row[0],
+                'request_count': row[1],
+                'percentage': row[2]
+            })
+        
+        # Get route combinations (pickup + dropoff) with 3+ requests
+        route_combinations_query = """
+        SELECT 
+            pickup_location,
+            dropoff_location,
+            COUNT(*) as request_count
+        FROM employee_app.location_preferences 
+        WHERE country = ? 
+        AND is_active = 1 
+        AND period_end >= GETDATE()
+        GROUP BY pickup_location, dropoff_location
+        HAVING COUNT(*) >= 3
+        ORDER BY request_count DESC
+        """
+        
+        cursor.execute(route_combinations_query, (country,))
+        route_combinations = []
+        for row in cursor.fetchall():
+            route_combinations.append({
+                'pickup_location': row[0],
+                'dropoff_location': row[1],
+                'request_count': row[2]
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 200,
+                'message': f'Location preferences for {country} retrieved successfully',
+                'data': {
+                    'country': country,
+                    'pickup_locations': pickup_results,
+                    'dropoff_locations': dropoff_results,
+                    'time_preferences': time_results,
+                    'high_demand_routes': route_combinations
+                }
+            }, cls=CustomJSONEncoder)
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,OPTIONS'
+            },
+            'body': json.dumps({
+                'statusCode': 500,
+                'message': f'Error retrieving location preferences for {country}: {str(e)}'
+            })
+        }
 
 
 

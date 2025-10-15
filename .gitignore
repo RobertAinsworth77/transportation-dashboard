@@ -38,3 +38,6 @@ test_secrets.py
 original_app.py
 modified_app.py
 lambda_function.zip
+lambda-update.zip
+database/
+lambda_functions/

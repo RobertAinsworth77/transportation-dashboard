@@ -32,6 +32,7 @@ import TransportPage from "../pages/transport/TransportPage";
 import { response as CheckIfUpdateUseCaseResponse } from '../../domain/use_cases/updateApp/CheckIfUpdateUseCase';
 import ShowUpdateComponent from "../components/showUpdate/ShowUpdateComponent";
 import RouteAlignmentPage from "../pages/routeAlignment/RouteAlignmentPage";
+import LocationPreferences from "../pages/LocationPreferences";
 
 const routes = {
     error_404: {
@@ -182,6 +183,13 @@ const routes = {
         component: RouteAlignmentPage,
         users: [UserEntityRole.admin, UserEntityRole.normal],
     },
+    locationPreferences: {
+        name: 'Location Preferences',
+        path: "/transport/location-preferences",
+        relativePath: "/transport/location-preferences",
+        component: LocationPreferences,
+        users: [UserEntityRole.admin, UserEntityRole.normal],
+    },
 }
 
 const modules = [
@@ -203,6 +211,7 @@ const modules = [
             routes.routes,
             routes.sites,
             routes.routeAlignment,
+            routes.locationPreferences,
             routes.busses,
             routes.add_trip,
             routes.add_route,
