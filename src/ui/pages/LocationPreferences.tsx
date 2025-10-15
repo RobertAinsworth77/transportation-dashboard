@@ -52,6 +52,15 @@ const LocationPreferences: React.FC = () => {
   const [countryDetails, setCountryDetails] = useState<CountryDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const getCountryFlag = (country: string): string => {
+    const flagMap: { [key: string]: string } = {
+      'Jamaica': '🇯🇲',
+      'St Lucia': '🇱🇨',
+      'St. Lucia': '🇱🇨'
+    };
+    return flagMap[country] || '🏳️';
+  };
+
   const COLORS = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#13c2c2'];
 
   useEffect(() => {
@@ -119,7 +128,7 @@ const LocationPreferences: React.FC = () => {
                   }}
                 >
                   <Statistic
-                    title={`🇱🇨 ${country.country}`}
+                    title={`${getCountryFlag(country.country)} ${country.country}`}
                     value={country.response_count}
                     suffix="responses"
                     prefix={<UserOutlined />}
@@ -141,19 +150,48 @@ const LocationPreferences: React.FC = () => {
     </Row>
   );
 
-  const renderTimePreferences = () => (
-    <Card title="⏰ Time Preference Distribution" style={{ marginTop: 16 }}>
-      <ResponsiveContainer width="100%" height={300}>
-        {<BarChart data={summaryData?.time_preferences as any}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="preferred_timeframe" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="request_count" fill="#1890ff" />
-        </BarChart> as any}
-      </ResponsiveContainer>
-    </Card>
-  );
+  const renderTimePreferences = () => null;
+
+  const generateHighDemandRoutes = (countryData: CountryDetails): RouteData[] => {
+    if (!countryData) return [];
+    
+    const highDemandRoutes: RouteData[] = [];
+    
+    // Get high demand pickup locations (3+ requests)
+    const highDemandPickups = countryData.pickup_locations?.filter(loc => loc.request_count >= 3) || [];
+    
+    // Get high demand dropoff locations (3+ requests)  
+    const highDemandDropoffs = countryData.dropoff_locations?.filter(loc => loc.request_count >= 3) || [];
+    
+    // Create routes for high demand pickups
+    highDemandPickups.forEach(pickup => {
+      highDemandRoutes.push({
+        pickup_location: pickup.pickup_location || '',
+        dropoff_location: 'Various destinations',
+        preferred_timeframe: 'Multiple times',
+        request_count: pickup.request_count
+      });
+    });
+    
+    // Create routes for high demand dropoffs (avoid duplicates)
+    highDemandDropoffs.forEach(dropoff => {
+      const dropoffLocation = dropoff.dropoff_location || '';
+      const alreadyExists = highDemandRoutes.some(route => 
+        route.pickup_location === dropoffLocation || route.dropoff_location === dropoffLocation
+      );
+      
+      if (!alreadyExists) {
+        highDemandRoutes.push({
+          pickup_location: 'Various origins',
+          dropoff_location: dropoffLocation,
+          preferred_timeframe: 'Multiple times',
+          request_count: dropoff.request_count
+        });
+      }
+    });
+    
+    return highDemandRoutes.sort((a, b) => b.request_count - a.request_count);
+  };
 
   const renderCountryDetails = () => {
     if (!countryDetails) return null;
@@ -257,16 +295,16 @@ const LocationPreferences: React.FC = () => {
           <Col xs={24} lg={12}>
             <Card title="💡 High Demand Routes" extra="3+ requests">
               <Table 
-                dataSource={countryDetails.high_demand_routes} 
+                dataSource={generateHighDemandRoutes(countryDetails)} 
                 columns={routeColumns}
                 pagination={false}
                 size="small"
                 rowKey={(record: RouteData) => `${record.pickup_location}-${record.dropoff_location}-${record.preferred_timeframe}`}
               />
-              {countryDetails.high_demand_routes?.length === 0 && (
+              {generateHighDemandRoutes(countryDetails)?.length === 0 && (
                 <Alert 
                   message="No high-demand routes found" 
-                  description="Routes with 3+ requests will appear here"
+                  description="Routes with 3 or more requests will appear here"
                   type="info" 
                   showIcon 
                 />
@@ -307,7 +345,6 @@ const LocationPreferences: React.FC = () => {
       </div>
 
       {renderCountryOverview()}
-      {summaryData?.time_preferences && renderTimePreferences()}
       {selectedCountry && renderCountryDetails()}
 
       {error && (
