@@ -1194,12 +1194,10 @@ def get_driver_information(event, context):
         driver_data = []
         for row in rows:
             driver_data.append({
-                "driver_id": row[0],
+                "id": row[0],
                 "name": row[1],
-                "last_name": row[2],
-                "cell_phone": row[3],
                 "email": row[4],
-                "status": row[5]
+                "enabled": row[5] in ['enabled', 'active']  # Map status to boolean
             })
         
         return {
