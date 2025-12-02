@@ -93,7 +93,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
     console.log('_handleFilterChange called');
     clearTimeout(_timerTap);
     _timerTap = setTimeout(() => {
-      if (title === 'Route Alignments') {
+      if (title === 'Survey Routes') {
         // For route alignments, reset to page 1 when filtering
         const formData = getValues();
         console.log('Filter change - form data:', formData);
@@ -123,7 +123,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
   const _handleChangeText = () => {
     clearTimeout(_timerTap);
     _timerTap = setTimeout(() => {
-      if (title === 'Route Alignments') {
+      if (title === 'Survey Routes') {
         // For route alignments, use server-side filtering but keep current page
         const formData = getValues();
         searchByWord(
@@ -195,7 +195,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
   const onSubmit = (data: any) => {
     //change url params 
     navigate(`?q1=&search=${data.search}&page=${data.page}&itemsPerPage=${data.itemsPerPage}`);
-    if (title === 'Route Alignments') {
+    if (title === 'Survey Routes') {
       searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy, data.countryFilter || '', data.cityFilter || '');
     } else {
       searchByWord(data.search, parseInt(data.page), parseInt(data.itemsPerPage), _orderBy);
@@ -239,7 +239,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
 
   const _searchTripsFirstTime = () => {
     const urlParams = new URLSearchParams(window.location.hash);
-    if (title === 'Route Alignments') {
+    if (title === 'Survey Routes') {
       searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy, '', '');
     } else {
       searchByWord(urlParams.get('search') || '', parseInt(urlParams.get('page') || '1'), parseInt(urlParams.get('itemsPerPage') || '20'), _orderBy);
@@ -262,7 +262,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
           }
         </div>
         <div className="col-12 col-md-6 d-flex align-items-center">
-          <input type="text" className="form-control flex-grow-1 me-2" onKeyUp={title === 'Route Alignments' ? _handleFilterChange : _handleChangeText} placeholder={i18n(KeyWordLocalization.Search)} {...register('search')} />
+          <input type="text" className="form-control flex-grow-1 me-2" onKeyUp={title === 'Survey Routes' ? _handleFilterChange : _handleChangeText} placeholder={i18n(KeyWordLocalization.Search)} {...register('search')} />
           <button className="btn btn-secondary" type='submit'>
             Submit
           </button>
@@ -271,7 +271,7 @@ const TableComponent: FC<TableProps> = ({ data, columns, searchByWord, page, ite
         {showFilters && (
           <div className="col-12 mb-3">
             <div className="row g-2">
-              {title === 'Route Alignments' ? (
+              {title === 'Survey Routes' ? (
                 <>
                   <div className="col-auto">
                     <select className="form-select form-select-sm" {...register('countryFilter')} value={countryFilter || ''} onChange={(e) => {

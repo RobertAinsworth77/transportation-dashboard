@@ -177,14 +177,14 @@ const routes = {
         users: [UserEntityRole.admin, UserEntityRole.normal],
     },
     routeAlignment: {
-        name: 'Route Alignment',
+        name: 'Survey Routes',
         path: "/transport/route-alignment",
         relativePath: "/transport/route-alignment",
         component: RouteAlignmentPage,
         users: [UserEntityRole.admin, UserEntityRole.normal],
     },
     locationPreferences: {
-        name: 'Location Preferences',
+        name: 'Survey: Location Report',
         path: "/transport/location-preferences",
         relativePath: "/transport/location-preferences",
         component: LocationPreferences,

@@ -85,7 +85,7 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
   }
 
   const _handleEdit = async (routeAlignment: RouteAlignmentEntity) => {
-    openModalCustom('lg', 'Edit Route Alignment', <AddRouteAlignmentModalComponent routeAlignment={routeAlignment} done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy, countryFilter, cityFilter)} />)
+    openModalCustom('lg', 'Edit Survey Route', <AddRouteAlignmentModalComponent routeAlignment={routeAlignment} done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy, countryFilter, cityFilter)} />)
   }
 
   const _handleDelete = async (routeAlignment: RouteAlignmentEntity) => {
@@ -99,9 +99,9 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
       }
     }
 
-    openModalCustom('sm', 'Delete Route Alignment', 
+    openModalCustom('sm', 'Delete Survey Route', 
       <div className="text-center">
-        <p>Are you sure you want to delete this route alignment?</p>
+        <p>Are you sure you want to delete this survey route?</p>
         <p><strong>{routeAlignment.country} - {routeAlignment.city} - {routeAlignment.community}</strong></p>
         <div className="d-flex justify-content-center gap-2 mt-3">
           <button className="btn btn-secondary" onClick={() => closeModalCustom()}>Cancel</button>
@@ -112,7 +112,7 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
   }
 
   const _handleAdd = async () => {
-    openModalCustom('lg', 'Add Route Alignment', <AddRouteAlignmentModalComponent done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy, countryFilter, cityFilter)} />)
+    openModalCustom('lg', 'Add Survey Route', <AddRouteAlignmentModalComponent done={() => _searchRouteAlignments(searchWord, currentPage, itemsPerPage, orderBy, countryFilter, cityFilter)} />)
   }
 
   useEffect(() => {
@@ -120,7 +120,7 @@ const RouteAlignmentPage: FC<RouteAlignmentPageProps> = () => {
   }, []);
 
   return <div className="route_alignment_page bg_1 p-5">
-    <TableComponent title="Route Alignments"
+    <TableComponent title="Survey Routes"
       columns={[
         { keyName: 'country', name: 'Country' },
         { keyName: 'city', name: 'City' },

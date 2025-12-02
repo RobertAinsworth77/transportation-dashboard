@@ -115,7 +115,7 @@ const LocationPreferences: React.FC = () => {
   const renderCountryOverview = () => (
     <Row gutter={[16, 16]}>
       <Col span={24}>
-        <Card title="📊 Location Preferences Overview" extra={<span>Next 14 Days</span>}>
+        <Card title="📊 Survey: Location Report Overview" extra={<span>Next 14 Days</span>}>
           <Row gutter={[16, 16]}>
             {summaryData?.country_summary?.map((country) => (
               <Col xs={24} sm={12} lg={8} key={country.country}>
@@ -340,7 +340,7 @@ const LocationPreferences: React.FC = () => {
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ marginBottom: 16 }}>
-        <h1>🗺️ Location Preferences Analytics</h1>
+        <h1>🗺️ Survey: Location Report Analytics</h1>
         <p>Employee transportation preferences for route planning optimization</p>
       </div>
 
