@@ -150,20 +150,20 @@ const DetailedTripPage: FC<{}> = () => {
             </div>
             <div className="col-lg-3">
                 <div className="card py-3">
-                    <div className="d-flex justify-content-between align-items-center px-3 mb-3">
-                        <h5 className="mb-0">
-                            {i18n(KeyWordLocalization.TripEntityPassengers)}
-                        </h5>
-                        {(trip.passengers.length > 0 || trip.bookings.length > 0) && (
+                    <h5 className="w-100 text-center mb-3">
+                        {i18n(KeyWordLocalization.TripEntityPassengers)}
+                    </h5>
+                    {(trip.passengers.length > 0 || trip.bookings.length > 0) && (
+                        <div className="px-3 mb-3">
                             <button 
-                                className="btn btn-sm btn-primary" 
+                                className="btn btn-outline-primary btn-sm w-100" 
                                 onClick={_handleTransferPassengers}
-                                title="Transfer passengers to another trip"
                             >
-                                Transfer
+                                <i className="bi bi-arrow-left-right me-2"></i>
+                                Transfer Passengers
                             </button>
-                        )}
-                    </div>
+                        </div>
+                    )}
                     {trip.passengers.map((passenger) => <div key={passenger.id} className="d-flex my-2 px-3 align-items-center">
                         <div className="circle_name">
                             {StringOptions.GetFirstLetterOfEachWord(passenger.name + ' ' + passenger.lastname)}

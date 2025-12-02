@@ -50,6 +50,14 @@ const TransferEmployeeModal: FC<TransferEmployeeModalProps> = ({ employees, curr
         );
     };
 
+    const handleSelectAll = () => {
+        if (selectedEmployees.length === employees.length) {
+            setSelectedEmployees([]);
+        } else {
+            setSelectedEmployees(employees.map(e => e.id));
+        }
+    };
+
     const handleTransfer = async (data: any) => {
         if (selectedEmployees.length === 0) return;
         
@@ -74,10 +82,19 @@ const TransferEmployeeModal: FC<TransferEmployeeModalProps> = ({ employees, curr
             <form onSubmit={handleSubmit(handleTransfer)}>
                 <div className="row">
                     <div className="col-12 mb-3">
-                        <h6>Select Employees to Transfer:</h6>
-                        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <h6 className="mb-0">Select Passengers to Transfer:</h6>
+                            <button 
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary"
+                                onClick={handleSelectAll}
+                            >
+                                {selectedEmployees.length === employees.length ? 'Deselect All' : 'Select All'}
+                            </button>
+                        </div>
+                        <div className="border rounded p-3" style={{ maxHeight: '300px', overflowY: 'auto', backgroundColor: '#f8f9fa' }}>
                             {employees.map(employee => (
-                                <div key={employee.id} className="form-check">
+                                <div key={employee.id} className="form-check mb-2 p-2 bg-white rounded">
                                     <input
                                         className="form-check-input"
                                         type="checkbox"
@@ -85,21 +102,24 @@ const TransferEmployeeModal: FC<TransferEmployeeModalProps> = ({ employees, curr
                                         checked={selectedEmployees.includes(employee.id)}
                                         onChange={() => handleEmployeeSelection(employee.id)}
                                     />
-                                    <label className="form-check-label" htmlFor={`employee-${employee.id}`}>
-                                        {employee.name} {employee.lastname}
+                                    <label className="form-check-label ms-2" htmlFor={`employee-${employee.id}`}>
+                                        <strong>{employee.name} {employee.lastname}</strong>
                                     </label>
                                 </div>
                             ))}
                         </div>
+                        <small className="text-muted mt-1 d-block">
+                            {selectedEmployees.length} of {employees.length} passenger(s) selected
+                        </small>
                     </div>
                     
                     <div className="col-12 form-group">
-                        <label>Transfer to Trip:</label>
+                        <label className="fw-bold mb-2">Transfer to Trip:</label>
                         <select 
                             {...register("toTripId", Validators({ required: true }))} 
-                            className="form-control"
+                            className="form-select"
                         >
-                            <option value="">Select a trip...</option>
+                            <option value="">Select destination trip...</option>
                             {trips.map(trip => (
                                 <option key={trip.id} value={trip.id}>
                                     Trip #{trip.id} - {trip.route?.name} ({trip.start_date.toLocaleDateString()})
@@ -110,9 +130,9 @@ const TransferEmployeeModal: FC<TransferEmployeeModalProps> = ({ employees, curr
                     </div>
                 </div>
                 
-                <div className="row mt-3">
+                <div className="row mt-4">
                     <div className="col-md-6">
-                        <button className="w-100 btn btn-light" type='button' onClick={closeModalCustom}>
+                        <button className="w-100 btn btn-secondary" type='button' onClick={closeModalCustom}>
                             Cancel
                         </button>
                     </div>
@@ -122,7 +142,7 @@ const TransferEmployeeModal: FC<TransferEmployeeModalProps> = ({ employees, curr
                             type='submit' 
                             disabled={loading || selectedEmployees.length === 0}
                         >
-                            {loading ? 'Transferring...' : `Transfer ${selectedEmployees.length} Employee(s)`}
+                            {loading ? 'Transferring...' : `Transfer ${selectedEmployees.length} Passenger(s)`}
                         </button>
                     </div>
                 </div>
