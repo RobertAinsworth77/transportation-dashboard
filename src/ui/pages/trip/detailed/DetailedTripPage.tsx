@@ -9,9 +9,12 @@ import TripEntity, { TripState } from "../../../../domain/entities/TripEntity";
 import KeyWordLocalization from "../../../../domain/providers/language/dictionaries/KeyWordLocalization";
 import LanguageContext from "../../../../domain/providers/language/LanguageContext";
 import LanguageContextType from "../../../../domain/providers/language/LanguageContextType";
+import ModalsContext from "../../../../domain/providers/modal/ModalsContext";
+import ModalsContextType from "../../../../domain/providers/modal/ModalsContextType";
 import CardCounterComponent from "../../../components/cardCounter/CardCounterComponent";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import RouteMapComponent from "../../../components/RouteMap/RouteMapComponent";
+import TransferEmployeeModal from "../../../components/modals/transferEmployee/TransferEmployeeModal";
 import { routes } from "../../../routes/RoutesComponent";
 import StringOptions from "../../../utils/StringOptions";
 import NotFoundComponent from '../../../components/notFound/NotFoundComponent';
@@ -20,6 +23,7 @@ import NotResultsComponent from '../../../components/notResults/NotResultsCompon
 const DetailedTripPage: FC<{}> = () => {
     const { di } = useContext(DependencyInjectionContext) as DependencyInjectionContextType;
     const { i18n } = useContext(LanguageContext) as LanguageContextType;
+    const { openModalCustom } = useContext(ModalsContext) as ModalsContextType;
     const { id } = useParams<{ id: string }>();
 
     const [trip, setTrip] = useState<TripEntity | null | undefined>(undefined);
@@ -31,6 +35,19 @@ const DetailedTripPage: FC<{}> = () => {
         } catch (error) {
             setTrip(null);
         }
+    }
+
+    const _handleTransferPassengers = () => {
+        const allPassengers = [...(trip?.passengers || []), ...(trip?.bookings || [])];
+        if (allPassengers.length === 0) return;
+        
+        openModalCustom('lg', 'Transfer Passengers', 
+            <TransferEmployeeModal 
+                employees={allPassengers}
+                currentTripId={parseInt(id!)}
+                onTransferComplete={_loadTrip}
+            />
+        );
     }
 
     useEffect(() => {
@@ -133,9 +150,20 @@ const DetailedTripPage: FC<{}> = () => {
             </div>
             <div className="col-lg-3">
                 <div className="card py-3">
-                    <h5 className="w-100 text-center">
-                        {i18n(KeyWordLocalization.TripEntityPassengers)}
-                    </h5>
+                    <div className="d-flex justify-content-between align-items-center px-3 mb-3">
+                        <h5 className="mb-0">
+                            {i18n(KeyWordLocalization.TripEntityPassengers)}
+                        </h5>
+                        {(trip.passengers.length > 0 || trip.bookings.length > 0) && (
+                            <button 
+                                className="btn btn-sm btn-primary" 
+                                onClick={_handleTransferPassengers}
+                                title="Transfer passengers to another trip"
+                            >
+                                Transfer
+                            </button>
+                        )}
+                    </div>
                     {trip.passengers.map((passenger) => <div key={passenger.id} className="d-flex my-2 px-3 align-items-center">
                         <div className="circle_name">
                             {StringOptions.GetFirstLetterOfEachWord(passenger.name + ' ' + passenger.lastname)}
