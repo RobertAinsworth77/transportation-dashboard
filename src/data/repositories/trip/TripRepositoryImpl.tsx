@@ -150,6 +150,18 @@ const TripRepositoryImpl: TripRepository = {
             reject(error);
         }
     }),
+    transferEmployees: (employeeIds: number[], fromTripId: number, toTripId: number): Promise<void> => new Promise<void>(async (resolve, reject) => {
+        try {
+            await HostApi.post('/dashboard/trips/move-employee', {
+                employee_ids: employeeIds,
+                from_trip_id: fromTripId,
+                to_trip_id: toTripId
+            });
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
+    }),
 }
 
 export default TripRepositoryImpl;

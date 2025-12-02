@@ -19,4 +19,5 @@ export default interface TripRepository {
     update: (trip: TripEntity) => Promise<void>
     create: (trip: TripEntity) => Promise<void>
     getPassengersByTripId: (id: number) => Promise<EmployeeEntity[]>
+    transferEmployees: (employeeIds: number[], fromTripId: number, toTripId: number) => Promise<void>
 }

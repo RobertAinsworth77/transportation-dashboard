@@ -43,6 +43,7 @@ import CreateTripUseCase from "../domain/use_cases/trip/CreateTripUseCase";
 import DeleteTripUseCase from "../domain/use_cases/trip/DeleteTripUseCase";
 import GetFiltredTripsUseCase from "../domain/use_cases/trip/GetFiltredTripsUseCase";
 import GetTripByIdUseCase from "../domain/use_cases/trip/GetTripByIdUseCase";
+import TransferEmployeeUseCase from "../domain/use_cases/trip/TransferEmployeeUseCase";
 import UpdateTripUseCase from "../domain/use_cases/trip/UpdateTripUseCase";
 import CheckIfUpdateUseCase from "../domain/use_cases/updateApp/CheckIfUpdateUseCase";
 import DownloadLastVersionUseCase from "../domain/use_cases/updateApp/DownloadLastVersionUseCase";
@@ -110,6 +111,7 @@ interface DIUseCases {
     deleteTripUseCase: DeleteTripUseCase,
     getTripByIdUseCase: GetTripByIdUseCase,
     getFiltredTripsUseCase: GetFiltredTripsUseCase,
+    transferEmployeeUseCase: TransferEmployeeUseCase,
     updateTripUseCase: UpdateTripUseCase,
 
     checkIfUpdateUseCase: CheckIfUpdateUseCase,
@@ -182,6 +184,7 @@ const createTripUseCase = new CreateTripUseCase({ tripRepository: repositories.t
 const deleteTripUseCase = new DeleteTripUseCase({ tripRepository: repositories.tripRepository });
 const getTripByIdUseCase = new GetTripByIdUseCase({ tripRepository: repositories.tripRepository });
 const getFiltredTripsUseCase = new GetFiltredTripsUseCase({ tripRepository: repositories.tripRepository });
+const transferEmployeeUseCase = new TransferEmployeeUseCase({ tripRepository: repositories.tripRepository });
 const updateTripUseCase = new UpdateTripUseCase({ tripRepository: repositories.tripRepository });
 
 const checkIfUpdateUseCase = new CheckIfUpdateUseCase({ updateAppRepository: repositories.updateAppRepository });
@@ -252,6 +255,7 @@ const useCases: DIUseCases = {
     deleteTripUseCase: deleteTripUseCase,
     getTripByIdUseCase: getTripByIdUseCase,
     getFiltredTripsUseCase: getFiltredTripsUseCase,
+    transferEmployeeUseCase: transferEmployeeUseCase,
     updateTripUseCase: updateTripUseCase,
 
     checkIfUpdateUseCase: checkIfUpdateUseCase,

@@ -371,6 +371,9 @@ const TripRepositoryTest: TripRepository = {
             country: 'country',
         }]);
     }),
+    transferEmployees: (employeeIds: number[], fromTripId: number, toTripId: number): Promise<void> => new Promise<void>((resolve) => {
+        resolve();
+    }),
 }
 
 export default TripRepositoryTest;
