@@ -5,7 +5,11 @@ const DefaultRepositoryImpl: DefaultRepository = {
     getAllKindUsersCount: (): Promise<GetAllKindUsersCountResponse> => new Promise<GetAllKindUsersCountResponse>(async (resolve, reject) => {
         try {
             const response = await HostApi.post('/admin_get_users_count', {});
-            const responseParsed = JSON.parse(response.data.replaceAll("'", '"'));
+            let cleanedData = response.data
+                .replaceAll("np.int64(", "")
+                .replaceAll(")", "")
+                .replaceAll("'", '"');
+            const responseParsed = JSON.parse(cleanedData);
             const converted = {
                 users_count: responseParsed.number_admins,
                 drivers_count: responseParsed.number_drivers,
@@ -19,7 +23,11 @@ const DefaultRepositoryImpl: DefaultRepository = {
     getAllCountersRelatedToTrip: (): Promise<GetAllCountersRelatedToTripResponse> => new Promise<GetAllCountersRelatedToTripResponse>(async (resolve, reject) => {
         try {
             const response = await HostApi.get('/dashboard/trips/getallcount');
-            const responseParsed = JSON.parse(response.replaceAll("'", '"'));
+            let cleanedData = response
+                .replaceAll("np.int64(", "")
+                .replaceAll(")", "")
+                .replaceAll("'", '"');
+            const responseParsed = JSON.parse(cleanedData);
             const converted = {
                 sites_count: responseParsed?.sites_count,
                 busses_count: responseParsed?.vehicles_count,
