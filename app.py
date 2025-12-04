@@ -172,6 +172,9 @@ def handler(event, context):
         elif resource == "/dashboard/users/drivers" and method == "POST":
             print("Routing to admin_get_all_drivers")
             return admin_get_all_drivers(event, context)
+        elif resource == "/dashboard/trips/move-employee" and method == "POST":
+            print("Routing to move_employee_between_trips")
+            return move_employee_between_trips(event, context)
         else:
             return {
                 "statusCode": 404,
@@ -963,6 +966,65 @@ def get_trip_passengers(event, context):
     return body 
 
 
+def move_employee_between_trips(event, context):
+    try:
+        # Parse body from API Gateway event
+        if isinstance(event.get('body'), str):
+            body = json.loads(event['body'])
+        else:
+            body = event
+        
+        employee_ids = body.get('employee_ids', [])
+        from_trip_id = body.get('from_trip_id')
+        to_trip_id = body.get('to_trip_id')
+        
+        if not employee_ids or not from_trip_id or not to_trip_id:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({
+                    'message': 'Missing required parameters: employee_ids, from_trip_id, to_trip_id'
+                })
+            }
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Update reserve_table to move employees to new trip
+        for employee_id in employee_ids:
+            update_query = """
+            UPDATE employee_app.reserve_table 
+            SET trip_id = ? 
+            WHERE employee_id = ? AND trip_id = ?
+            """
+            cursor.execute(update_query, (to_trip_id, employee_id, from_trip_id))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'POST,OPTIONS'
+            },
+            'body': json.dumps({
+                'message': f'Successfully transferred {len(employee_ids)} employee(s) from trip {from_trip_id} to trip {to_trip_id}'
+            })
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'message': f'Error transferring employees: {str(e)}'
+            })
+        }
+
 
 def driver_update_position(event, context):
 
@@ -1197,7 +1259,7 @@ def get_driver_information(event, context):
                 "id": row[0],
                 "name": row[1],
                 "email": row[4],
-                "enabled": row[5] in ['enabled', 'active']  # Map status to boolean
+                "enabled": row[5] == 'able'  # Map status to boolean
             })
         
         return {
