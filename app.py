@@ -175,6 +175,34 @@ def handler(event, context):
         elif resource == "/dashboard/trips/move-employee" and method == "POST":
             print("Routing to move_employee_between_trips")
             return move_employee_between_trips(event, context)
+        # Employee app endpoints - use environment variable routing
+        elif resource.startswith("/employee_") or resource.startswith("/get_employee_") or resource.startswith("/get_driver_"):
+            env_func_name = os.environ.get('LAMBDA_FUNCTION_NAME')
+            if env_func_name and env_func_name in lambdas_functions:
+                print(f"Routing employee endpoint to: {env_func_name}")
+                try:
+                    body = lambdas_functions[env_func_name](event, context)
+                    # Return proper API Gateway proxy response
+                    return {
+                        "statusCode": body.get("statusCode", 200),
+                        "headers": {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+                            "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+                        },
+                        "body": json.dumps(body)
+                    }
+                except Exception as e:
+                    print(f"Error in {env_func_name}:", str(e))
+                    return {
+                        "statusCode": 500,
+                        "headers": {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+                            "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+                        },
+                        "body": json.dumps({"message": f"Internal error: {str(e)}"})
+                    }
         else:
             return {
                 "statusCode": 404,
@@ -1479,9 +1507,14 @@ def employee_cancel_booking(event, context):
 
         connstring = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={hostname};DATABASE={database};UID={username};PWD={password}"
 
-        trip_id = event.get('trip_id')
-
-        employee_id = event.get('employee_id')
+        # Parse body if it's from API Gateway
+        if 'body' in event and isinstance(event['body'], str):
+            body_data = json.loads(event['body'])
+            trip_id = body_data.get('trip_id')
+            employee_id = body_data.get('employee_id')
+        else:
+            trip_id = event.get('trip_id')
+            employee_id = event.get('employee_id')
 
         conn = get_db_connection()
 
@@ -1581,6 +1614,175 @@ def employee_get_routes_by_site(event, context):
 
         } 
 
+    return body
+
+
+def employee_get_initial_data(event, context):
+    """
+    Combined endpoint to get countries, sites, and routes in one call
+    Reduces cold starts from 3 separate Lambda calls to 1
+    """
+    try:
+        conn = get_db_connection()
+        
+        # Parse body if it's from API Gateway
+        if 'body' in event and isinstance(event['body'], str):
+            body_data = json.loads(event['body'])
+            country = body_data.get('country', 'St Lucia')  # Default to St Lucia
+        else:
+            country = event.get('country', 'St Lucia')
+        
+        # Get countries from sites_table
+        countries_query = "SELECT DISTINCT country FROM employee_app.sites_table ORDER BY country"
+        countries_df = pd.read_sql_query(countries_query, conn)
+        countries = [{"country": row["country"]} for _, row in countries_df.iterrows()]
+        
+        # Get sites for the specified country
+        sites_query = "SELECT site_id, site_name FROM employee_app.sites_table WHERE country = ? ORDER BY site_name"
+        sites_df = pd.read_sql_query(sites_query, conn, params=[country])
+        sites = sites_df.to_dict("records")
+        
+        # Get routes for the first site (assuming auto-select)
+        routes = []
+        if len(sites) > 0:
+            site_id = sites[0]["site_id"]
+            routes_query = "SELECT route_id, route_name FROM employee_app.route_table WHERE site_id = ? ORDER BY route_name"
+            routes_df = pd.read_sql_query(routes_query, conn, params=[site_id])
+            routes = routes_df.to_dict("records")
+        
+        conn.close()
+        
+        body = {
+            "statusCode": 200,
+            "message": "Initial data loaded successfully",
+            "data": {
+                "countries": countries,
+                "sites": sites,
+                "routes": routes,
+                "selected_country": country,
+                "selected_site": sites[0] if sites else None
+            }
+        }
+    except Exception as e:
+        print(f"Error in employee_get_initial_data: {str(e)}")
+        body = {
+            "statusCode": 400,
+            "message": f"ERROR getting initial data: {e}",
+            "data": {}
+        }
+    return body
+
+
+def employee_get_stops_by_city(event, context):
+    try:
+        conn = get_db_connection()
+        
+        # Parse body if it's from API Gateway
+        if 'body' in event and isinstance(event['body'], str):
+            body_data = json.loads(event['body'])
+            city = body_data.get('city')
+        else:
+            city = event.get('city')
+        
+        query = f"""SELECT id, community as stop_name, city, country 
+                    FROM employee_app.route_alignment 
+                    WHERE city = ? AND is_active = 1
+                    ORDER BY community
+                """
+        
+        df = pd.read_sql_query(query, conn, params=[city])
+        
+        body = {
+            "statusCode": 200,
+            "message": "Stops were successfully obtained", 
+            "data": df.to_dict("records")
+        }
+    except Exception as e:
+        print(f"Error in employee_get_stops_by_city: {str(e)}")
+        body = {
+            "statusCode": 400,
+            "message": f"ERROR while getting stops: {e}",
+            "data": []
+        } 
+    return body
+
+
+def admin_add_trips(event, context):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Add trip for Itel SLU - Vieux Fort (route_id=10) for Dec 10, 2025
+        cursor.execute("""
+        INSERT INTO employee_app.trip_table (route_id, date_begin, date_end, status, driver_id, vehicle_id, recurrent_days)
+        VALUES (10, '2025-12-10', '2025-12-10', 'pending', 0, 1, NULL)
+        """)
+        
+        # Get the trip_id
+        cursor.execute("SELECT @@IDENTITY")
+        trip_id_1 = cursor.fetchone()[0]
+        
+        # Check for reverse route and add if exists
+        cursor.execute("SELECT route_id, route_name FROM employee_app.route_table WHERE route_name LIKE 'Vieux Fort%Itel%'")
+        reverse_route = cursor.fetchone()
+        
+        trips_added = [f"Trip {trip_id_1}: Itel SLU - Vieux Fort"]
+        
+        if reverse_route:
+            cursor.execute("""
+            INSERT INTO employee_app.trip_table (route_id, date_begin, date_end, status, driver_id, vehicle_id, recurrent_days)
+            VALUES (?, '2025-12-10', '2025-12-10', 'pending', 0, 1, NULL)
+            """, (reverse_route[0],))
+            
+            cursor.execute("SELECT @@IDENTITY")
+            trip_id_2 = cursor.fetchone()[0]
+            trips_added.append(f"Trip {trip_id_2}: {reverse_route[1]}")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        body = {
+            "statusCode": 200,
+            "message": f"Added {len(trips_added)} trips for 2025-12-10",
+            "data": {"trips": trips_added}
+        }
+    except Exception as e:
+        body = {
+            "statusCode": 400,
+            "message": f"ERROR adding trips: {e}",
+            "data": {}
+        }
+    return body
+
+
+def admin_clear_bookings(event, context):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # First get count
+        cursor.execute("SELECT COUNT(*) FROM employee_app.reserve_table")
+        count = cursor.fetchone()[0]
+        
+        # Delete all bookings
+        cursor.execute("DELETE FROM employee_app.reserve_table")
+        conn.commit()
+        
+        cursor.close()
+        conn.close()
+        
+        body = {
+            "statusCode": 200,
+            "message": f"Deleted {count} bookings",
+            "data": {"deleted_count": count}
+        }
+    except Exception as e:
+        body = {
+            "statusCode": 400,
+            "message": f"ERROR clearing bookings: {e}",
+            "data": {}
+        }
     return body
 
 
@@ -5559,7 +5761,7 @@ def employee_get_future_bookings(event, context):
                         on B.route_id=C.route_id
                         where A.employee_id = {hrm_id} 
                         and A.flaq = 'pending'
-                        and B.date_begin >= GETDATE()
+                        and CAST(B.date_begin AS DATE) >= CAST(GETDATE() AS DATE)
                         ORDER BY B.date_begin ASC
                 """
         
@@ -5573,7 +5775,7 @@ def employee_get_future_bookings(event, context):
                         on B.route_id=C.route_id
                         where A.employee_id = {hrm_id} 
                         and A.flaq = 'pending'
-                        and B.date_begin >= GETDATE()
+                        and CAST(B.date_begin AS DATE) >= CAST(GETDATE() AS DATE)
                     ORDER BY B.date_begin ASC
                     OFFSET {page_size*(page_number-1)} ROWS
                     FETCH NEXT {page_size} ROWS ONLY;
@@ -6710,6 +6912,14 @@ lambdas_functions = {
     "employee_cancel_booking":employee_cancel_booking,
 
     "employee_get_routes_by_site":employee_get_routes_by_site,
+
+    "employee_get_stops_by_city":employee_get_stops_by_city,
+
+    "employee_get_initial_data":employee_get_initial_data,
+
+    "admin_clear_bookings":admin_clear_bookings,
+
+    "admin_add_trips":admin_add_trips,
 
     "employee_get_trip_by_route_date":employee_get_trip_by_route_date,
 
