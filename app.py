@@ -32,14 +32,15 @@ def get_db_connection():
     env = os.environ.get('ENV', 'prod')
     print(f"🔍 Environment detected: {env}")
     
+    # Initialize secrets manager client
+    session = boto3.session.Session()
+    client = session.client(service_name='secretsmanager', region_name='us-east-1')
+    
     if env == 'dev':
         print("🔧 Using dev database configuration")
         try:
             # Get dev database credentials from Secrets Manager
             print("📡 Retrieving dev database secrets...")
-            
-            session = boto3.session.Session()
-            client = session.client(service_name='secretsmanager', region_name='us-east-1')
             
             print("🔍 Getting db_name_dev...")
             db_name = client.get_secret_value(SecretId='db_name_dev')['SecretString']
@@ -54,13 +55,29 @@ def get_db_connection():
             print("✅ DB Password retrieved")
             
         except Exception as e:
-            print(f"❌ Error retrieving secrets: {str(e)}")
+            print(f"❌ Error retrieving dev secrets: {str(e)}")
             raise e
     else:
         print("🏭 Using production database configuration")
-        db_name = "itel"
-        db_user = "itel_user"
-        db_password = "Itel2022!"
+        try:
+            # Get production database credentials from Secrets Manager
+            print("📡 Retrieving production database secrets...")
+            
+            print("🔍 Getting db_name_prod...")
+            db_name = client.get_secret_value(SecretId='db_name_prod')['SecretString']
+            print(f"✅ DB Name: {db_name}")
+            
+            print("🔍 Getting db_user_prod...")
+            db_user = client.get_secret_value(SecretId='db_user_prod')['SecretString'] 
+            print(f"✅ DB User: {db_user}")
+            
+            print("🔍 Getting db_password_prod...")
+            db_password = client.get_secret_value(SecretId='db_password_prod')['SecretString']
+            print("✅ DB Password retrieved")
+            
+        except Exception as e:
+            print(f"❌ Error retrieving production secrets: {str(e)}")
+            raise e
     
     # Database connection parameters
     server = 'itel-db-server.database.windows.net'
