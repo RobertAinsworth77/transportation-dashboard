@@ -3,15 +3,10 @@ runtime: nodejs18
 build:
   commands:
     build:
-      - npm install
-      - npm install -g serve
+      - npm ci
       - npm run build
 run:
   runtime-version: '18'
-  command: serve -s build -l 8080
+  command: npx serve -s build -p 8080
   network:
     port: 8080
-    env: PORT
-  env:
-    - name: PORT
-      value: "8080"

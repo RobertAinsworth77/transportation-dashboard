@@ -37,6 +37,7 @@
     "react-toastify": "^9.1.1",
     "reactstrap": "^9.1.5",
     "recharts": "^3.2.1",
+    "serve": "^14.2.5",
     "typescript": "^4.9.4",
     "web-vitals": "^2.1.4"
   },
